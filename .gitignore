@@ -1,0 +1,25 @@
+# Frontend dependencies and builds
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Backend dependencies, caches, and databases
+backend/venv/
+backend/env/
+backend/.env
+backend/__pycache__/
+backend/*.pyc
+backend/bobby_sales.db
+backend/app/uploads/*
+!backend/app/uploads/.gitkeep
+
+# IDEs and temporary files
+.DS_Store
+.idea/
+.vscode/
+*.log
+.gemini/
