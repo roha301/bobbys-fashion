@@ -30,7 +30,7 @@ We wanted this platform to be lightning-fast, easy to maintain, and visually stu
 
 ### Backend (API & Data)
 - ⚡ **Python FastAPI:** One of the fastest Python frameworks available. It automatically generates API documentation and handles data validation effortlessly.
-- 🗄️ **SQLite (via SQLAlchemy):** A zero-configuration database. Since our platform is read-heavy (users browsing products) and we don't handle complex user transactions or carts, SQLite is the perfect lightweight engine to power the platform without server overhead.
+- 🗄️ **SQLite (Local) & Supabase Postgres (Production):** A zero-configuration local database for lightning-fast development, seamlessly scaling to a powerful Supabase PostgreSQL database in production (see the `migrate.py` script for data migration!).
 - 🔐 **JWT (python-jose) & bcrypt:** Industry-standard security for protecting the Admin Dashboard, ensuring only authorized users can add or edit products.
 
 ---
