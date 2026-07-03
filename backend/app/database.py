@@ -2,17 +2,15 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-# Load database URL from environment variable, falling back to local SQLite
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./bobby_sales.db")
+# Load database URL from environment variable, falling back to Supabase Postgres
+SUPABASE_URL = "postgresql://postgres.qcxgpylocedhgjbsqlhw:BobbyFashion%231234@aws-1-ap-south-1.pooler.supabase.com:5432/postgres"
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", SUPABASE_URL)
 
-# Correct postgresql dialect name (e.g. from Heroku/Render postgres:// prefix to postgresql://)
+# Correct postgresql dialect name if needed (e.g., from Heroku/Render)
 if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
     SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-# connect_args should only specify check_same_thread for SQLite
 connect_args = {}
-if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
-    connect_args = {"check_same_thread": False}
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args=connect_args

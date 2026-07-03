@@ -30,7 +30,7 @@ We wanted this platform to be lightning-fast, easy to maintain, and visually stu
 
 ### Backend (API & Data)
 - ⚡ **Python FastAPI:** One of the fastest Python frameworks available. It automatically generates API documentation and handles data validation effortlessly.
-- 🗄️ **SQLite (Local) & Supabase Postgres (Production):** A zero-configuration local database for lightning-fast development, seamlessly scaling to a powerful Supabase PostgreSQL database in production (see the `migrate.py` script for data migration!).
+- 🗄️ **Supabase PostgreSQL:** A robust, cloud-hosted PostgreSQL database that powers the platform seamlessly.
 - 🔐 **JWT (python-jose) & bcrypt:** Industry-standard security for protecting the Admin Dashboard, ensuring only authorized users can add or edit products.
 
 ---

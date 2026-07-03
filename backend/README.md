@@ -10,7 +10,7 @@ Built with speed and simplicity in mind, this REST API handles everything from p
 
 We keep it simple, fast, and modern:
 - ⚡ **[FastAPI](https://fastapi.tiangolo.com/)** — A lightning-fast REST API framework for Python.
-- 🗄️ **SQLite (Local) & Supabase Postgres (Production)** — Local file for development (`bobby_sales.db`), scaling up to Supabase for production.
+- 🗄️ **Supabase PostgreSQL** — Robust, cloud-hosted PostgreSQL database.
 - 🔐 **JWT (python-jose)** — Secure admin authentication.
 - 🛡️ **bcrypt** — Robust password hashing to keep our admins safe.
 
@@ -134,7 +134,7 @@ backend/
 
 Keep these important tips in mind:
 1. **Change the Secret:** Swap `BOBBY_SALES_SECRET_KEY` for a long, random value and store it outside of version control.
-2. **Database:** While SQLite is great for local development, we strongly recommend using a robust database like **Supabase (PostgreSQL)** for production. You can seamlessly switch to Supabase by setting the `DATABASE_URL` environment variable to your Supabase connection string. (Check out `migrate.py` for easily migrating your local SQLite data straight to Supabase!).
+2. **Database:** The backend connects to Supabase (PostgreSQL) out of the box using the `DATABASE_URL` environment variable. Make sure to provide a valid Supabase connection string.
 3. **Storage:** Uploaded images are currently stored locally. Move to AWS S3 or Google Cloud Storage before scaling past one server.
 4. **CORS:** Update the `allow_origins` list in `main.py` to only include your real frontend domain before deploying. 
 

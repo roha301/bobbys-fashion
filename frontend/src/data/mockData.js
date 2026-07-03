@@ -1,5 +1,5 @@
 // Fallback data — used only if the FastAPI backend is not running.
-// The real source of truth is the backend + SQLite database (see /backend/seed.py).
+// The real source of truth is the backend + Supabase PostgreSQL database (see /backend/seed.py).
 
 export const CATEGORIES = [
   { id: 'women', name: 'Women', emoji: '👗' },
