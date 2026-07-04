@@ -167,8 +167,28 @@ async def upload_image(file: UploadFile = File(...), _admin: str = Depends(requi
     if len(contents) > MAX_UPLOAD_BYTES:
         raise HTTPException(status_code=400, detail="File too large (max 5MB)")
 
-    os.makedirs(UPLOAD_DIR, exist_ok=True)
     filename = f"{uuid.uuid4().hex}{ext}"
+
+    supabase_url = os.environ.get("SUPABASE_URL")
+    supabase_key = os.environ.get("SUPABASE_KEY")
+
+    if supabase_url and supabase_key:
+        try:
+            from supabase import create_client, Client
+            supabase: Client = create_client(supabase_url, supabase_key)
+            content_type = file.content_type or "application/octet-stream"
+            supabase.storage.from_("products").upload(
+                path=filename,
+                file=contents,
+                file_options={"content-type": content_type}
+            )
+            public_url = supabase.storage.from_("products").get_public_url(filename)
+            return {"url": public_url}
+        except Exception as e:
+            print(f"Supabase storage error: {e}")
+            # Fall back to local upload if Supabase fails (e.g. bucket doesn't exist)
+
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
     path = os.path.join(UPLOAD_DIR, filename)
     with open(path, "wb") as f:
         f.write(contents)
