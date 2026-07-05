@@ -8,7 +8,6 @@ import ProductDetails from './pages/ProductDetails'
 import Search from './pages/Search'
 import Deals from './pages/Deals'
 import About from './pages/About'
-import Contact from './pages/Contact'
 import AdminLogin from './pages/admin/AdminLogin'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import AdminRoute from './components/AdminRoute'
@@ -54,7 +53,6 @@ function SiteRoutes() {
           <Route path="/search" element={<Search />} />
           <Route path="/deals" element={<Deals />} />
           <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

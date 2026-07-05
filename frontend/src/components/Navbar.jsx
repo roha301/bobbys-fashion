@@ -12,7 +12,6 @@ const LINKS = [
   { to: '/category/men', label: 'Men' },
   { to: '/deals', label: 'Deals' },
   { to: '/about', label: 'About' },
-  { to: '/contact', label: 'Contact' },
 ]
 
 export default function Navbar() {

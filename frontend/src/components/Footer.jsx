@@ -32,7 +32,6 @@ export default function Footer() {
             <p className="font-display text-sm font-medium text-[var(--color-ink)]">Company</p>
             <ul className="mt-4 space-y-2.5 text-sm text-[var(--color-ink-soft)]">
               <li><Link to="/about" className="hover:text-[var(--color-gold-dark)]">About</Link></li>
-              <li><Link to="/contact" className="hover:text-[var(--color-gold-dark)]">Contact</Link></li>
               <li><Link to="/admin/login" className="hover:text-[var(--color-gold-dark)]">Admin</Link></li>
             </ul>
           </div>
