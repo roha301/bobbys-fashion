@@ -78,4 +78,57 @@ npm run dev
 - **Backend:** Deploy `backend/` to Render, Railway, or Fly.io. Ensure you set a secure `BOBBY_SALES_SECRET_KEY` environment variable.
 
 ---
+---
 *Curated with style. Built with passion.*
+
+---
+
+## 🛠️ Complete Tech Stack Summary
+
+Here is the final set of technologies used across the entire Bobby Sales platform:
+
+| Layer | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Frontend** | React 19, Vite, Tailwind CSS v4, Framer Motion, React Router | Modern, responsive, and luxurious UI with micro-animations and smooth routing |
+| **Backend** | Python FastAPI, Uvicorn | High-performance async API server |
+| **Database** | Supabase (PostgreSQL) | Secure and scalable cloud-based relational database |
+| **Cloud Storage** | Supabase Storage | Bypasses local filesystem constraints to store product images publicly |
+| **Authentication** | JWT, bcrypt, Google OAuth | Secure admin logins, custom user registrations, and Google Sign-in popup integration |
+| **Deployment** | Vercel | Hosting for both the React frontend and serverless FastAPI backend |
+| **Integrations** | Make.com (formerly Integromat) | Webhook automation for sending contact form messages directly to your Gmail |
+
+---
+
+## 🔌 API Endpoints Documentation
+
+The FastAPI backend exposes the following RESTful API endpoints at `/api`:
+
+### 1. Products
+- **`GET /api/products`**: Fetch products with optional filtering (by category, store, brand, featured, trending, deals, and query search).
+- **`GET /api/products/{id}`**: Fetch details of a single product.
+- **`POST /api/products/{id}/click`**: Register a click event for product affiliate links (analytics).
+- **`POST /api/products`** *(Admin Token)*: Create a new product.
+- **`PUT /api/products/{id}`** *(Admin Token)*: Update an existing product.
+- **`DELETE /api/products/{id}`** *(Admin Token)*: Delete a product.
+
+### 2. Categories
+- **`GET /api/categories`**: Fetch all available product categories.
+- **`POST /api/categories`** *(Admin Token)*: Add a new category.
+- **`PUT /api/categories/{id}`** *(Admin Token)*: Edit a category.
+- **`DELETE /api/categories/{id}`** *(Admin Token)*: Remove a category.
+
+### 3. User Authentication
+- **`POST /api/auth/user/register`**: Register a new user (requires name, email, password, and confirm password on the frontend).
+- **`POST /api/auth/user/login`**: Authenticate a user with email and password.
+- **`POST /api/auth/user/google`**: Securely authenticate a user with Google OAuth (verifies Google token payload on the server and returns a session JWT).
+
+### 4. Admin Authentication
+- **`POST /api/auth/register-first`**: Register the very first admin user (disabled once any admin exists).
+- **`POST /api/auth/login`**: Authenticate an admin user and return a JWT access token.
+- **`GET /api/auth/status`**: Returns whether an admin account has been configured.
+
+### 5. Miscellaneous
+- **`POST /api/upload`** *(Admin Token)*: Upload a product image. Automatically saves to Supabase Storage (public `products` bucket) and returns the public CDN URL.
+- **`GET /api/admin/scrape`** *(Admin Token)*: Scrapes product data (Title, Price, Image, Brand) from external shop links (Amazon, Myntra, etc.) for quick auto-fill.
+- **`GET /api/health`**: Simple health check endpoint for checking backend live status.
+
