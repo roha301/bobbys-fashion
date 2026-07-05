@@ -39,8 +39,11 @@ app.add_middleware(
 )
 
 UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploads")
-os.makedirs(UPLOAD_DIR, exist_ok=True)
-app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
+try:
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+    app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
+except OSError:
+    print("Running in read-only filesystem (Vercel). Local uploads mount disabled.")
 
 app.include_router(products.router)
 app.include_router(categories.router)
