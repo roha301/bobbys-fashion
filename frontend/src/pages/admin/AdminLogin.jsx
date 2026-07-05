@@ -108,12 +108,7 @@ export default function AdminLogin() {
           </form>
         </div>
 
-        {/* Credentials help note */}
-        <div className="mt-6 text-center text-xs text-white/40">
-          <p className="font-semibold text-white/60">Admin Credentials for Testing:</p>
-          <p className="mt-1">Username: <span className="font-mono text-[var(--color-gold)] select-all">bobbyfashionhub</span></p>
-          <p>Password: <span className="font-mono text-[var(--color-gold)] select-all">bobbyfashion@1234</span></p>
-        </div>
+
 
       </div>
     </div>
