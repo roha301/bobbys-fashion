@@ -30,3 +30,4 @@ watchfiles
 websockets
 psycopg[binary]
 supabase>=2.5.0
+google-auth
