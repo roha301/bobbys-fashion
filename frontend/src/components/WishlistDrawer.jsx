@@ -102,7 +102,7 @@ function WishlistContent({ onClose }) {
                     onClick={onClose}
                     className="h-20 w-16 shrink-0 overflow-hidden rounded-lg bg-[var(--color-paper-dim)] p-1"
                   >
-                    <img src={image} alt={product.name} className="h-full w-full object-contain" />
+                    <img src={image} alt={product.name} referrerPolicy="no-referrer" className="h-full w-full object-contain" />
                   </Link>
 
                   {/* Details */}

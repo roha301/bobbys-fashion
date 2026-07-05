@@ -26,6 +26,7 @@ export default function ProductCard({ product, index = 0 }) {
           src={image}
           alt={product.name}
           loading="lazy"
+          referrerPolicy="no-referrer"
           className="h-full w-full object-contain transition-transform duration-500 ease-out group-hover:scale-105"
         />
         {product.discount > 0 && (

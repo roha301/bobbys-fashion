@@ -42,7 +42,7 @@ export default function ProductDetails() {
         {/* Gallery */}
         <div>
           <div className="aspect-[3/4] overflow-hidden rounded-2xl bg-[var(--color-paper-dim)] p-4 flex items-center justify-center">
-            <img src={images[activeImage]} alt={product.name} className="max-h-full max-w-full object-contain" />
+            <img src={images[activeImage]} alt={product.name} referrerPolicy="no-referrer" className="max-h-full max-w-full object-contain" />
           </div>
           <div className="mt-4 flex gap-3">
             {images.map((img, i) => (
@@ -51,7 +51,7 @@ export default function ProductDetails() {
                 onClick={() => setActiveImage(i)}
                 className={`h-20 w-16 overflow-hidden rounded-xl border-2 bg-[var(--color-paper-dim)] p-1 ${activeImage === i ? 'border-[var(--color-gold)]' : 'border-transparent'}`}
               >
-                <img src={img} alt="" className="h-full w-full object-contain" />
+                <img src={img} alt="" referrerPolicy="no-referrer" className="h-full w-full object-contain" />
               </button>
             ))}
           </div>
