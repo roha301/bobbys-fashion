@@ -26,7 +26,7 @@ export default function Home() {
 
       <Section>
         <SectionHeading eyebrow="Browse" title="Trending Categories" subtitle="Jump straight into the edit you're shopping for." />
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-8">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-6">
           {(categories.data || []).map((c, i) => (
             <CategoryCard key={c.id} category={c} index={i} />
           ))}
