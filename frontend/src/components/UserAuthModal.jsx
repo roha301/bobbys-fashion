@@ -182,7 +182,7 @@ export default function UserAuthModal({ isOpen, onClose }) {
                           value={name}
                           onChange={(e) => setName(e.target.value)}
                           placeholder="Your Name"
-                          className="w-full rounded-full border border-[var(--color-line)] bg-[var(--color-paper-dim)]/50 py-3.5 pl-11 pr-4 text-sm text-[var(--color-ink)] placeholder-white/0 outline-none transition focus:border-[var(--color-gold)] focus:bg-white"
+                          className="w-full rounded-full border border-[var(--color-line)] bg-[var(--color-paper-dim)]/50 py-3.5 pl-11 pr-4 text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-soft)]/60 outline-none transition focus:border-[var(--color-gold)] focus:bg-white"
                         />
                       </div>
                     )}
@@ -195,7 +195,7 @@ export default function UserAuthModal({ isOpen, onClose }) {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="Email Address"
-                        className="w-full rounded-full border border-[var(--color-line)] bg-[var(--color-paper-dim)]/50 py-3.5 pl-11 pr-4 text-sm text-[var(--color-ink)] placeholder-white/0 outline-none transition focus:border-[var(--color-gold)] focus:bg-white"
+                        className="w-full rounded-full border border-[var(--color-line)] bg-[var(--color-paper-dim)]/50 py-3.5 pl-11 pr-4 text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-soft)]/60 outline-none transition focus:border-[var(--color-gold)] focus:bg-white"
                       />
                     </div>
 
@@ -207,7 +207,7 @@ export default function UserAuthModal({ isOpen, onClose }) {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Password"
-                        className="w-full rounded-full border border-[var(--color-line)] bg-[var(--color-paper-dim)]/50 py-3.5 pl-11 pr-4 text-sm text-[var(--color-ink)] placeholder-white/0 outline-none transition focus:border-[var(--color-gold)] focus:bg-white"
+                        className="w-full rounded-full border border-[var(--color-line)] bg-[var(--color-paper-dim)]/50 py-3.5 pl-11 pr-4 text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-soft)]/60 outline-none transition focus:border-[var(--color-gold)] focus:bg-white"
                       />
                     </div>
 
@@ -220,7 +220,7 @@ export default function UserAuthModal({ isOpen, onClose }) {
                           value={confirmPassword}
                           onChange={(e) => setConfirmPassword(e.target.value)}
                           placeholder="Confirm Password"
-                          className="w-full rounded-full border border-[var(--color-line)] bg-[var(--color-paper-dim)]/50 py-3.5 pl-11 pr-4 text-sm text-[var(--color-ink)] placeholder-white/0 outline-none transition focus:border-[var(--color-gold)] focus:bg-white"
+                          className="w-full rounded-full border border-[var(--color-line)] bg-[var(--color-paper-dim)]/50 py-3.5 pl-11 pr-4 text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-soft)]/60 outline-none transition focus:border-[var(--color-gold)] focus:bg-white"
                         />
                       </div>
                     )}
