@@ -24,6 +24,8 @@ export default function ProductForm({ initial, onSaved, onCancel }) {
   const [error, setError] = useState('')
   const [colorInput, setColorInput] = useState('')
   const [sizeInput, setSizeInput] = useState('')
+  const [customSize, setCustomSize] = useState('')
+  const [showCustomSize, setShowCustomSize] = useState(false)
   const [scrapeUrl, setScrapeUrl] = useState('')
   const [scraping, setScraping] = useState(false)
   const [scrapeError, setScrapeError] = useState('')
@@ -330,24 +332,54 @@ export default function ProductForm({ initial, onSaved, onCancel }) {
           {/* Sizes */}
           <Field label="Sizes">
             <div className="flex gap-2">
-              <select
-                value={sizeInput}
-                onChange={(e) => setSizeInput(e.target.value)}
-                className={inputCls + ' flex-1 bg-[#1a1a1a]'}
-              >
-                <option value="" className="text-white/20">Select size...</option>
-                {SIZE_OPTIONS.map((opt) => (
-                  <option key={opt} value={opt} className="bg-[#1a1a1a]">
-                    {opt}
-                  </option>
-                ))}
-              </select>
+              {showCustomSize ? (
+                <input
+                  value={customSize}
+                  onChange={(e) => setCustomSize(e.target.value)}
+                  placeholder="e.g. 42, XXL, Custom size..."
+                  className={inputCls + ' flex-1'}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      addChip('sizes', customSize, setCustomSize)
+                    }
+                  }}
+                />
+              ) : (
+                <select
+                  value={sizeInput}
+                  onChange={(e) => setSizeInput(e.target.value)}
+                  className={inputCls + ' flex-1 bg-[#1a1a1a]'}
+                >
+                  <option value="" className="text-white/20">Select size...</option>
+                  {SIZE_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt} className="bg-[#1a1a1a]">
+                      {opt}
+                    </option>
+                  ))}
+                </select>
+              )}
               <button
                 type="button"
-                onClick={() => addChip('sizes', sizeInput, setSizeInput)}
+                onClick={() => {
+                  if (showCustomSize) {
+                    addChip('sizes', customSize, setCustomSize)
+                  } else {
+                    addChip('sizes', sizeInput, setSizeInput)
+                  }
+                }}
                 className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/40 transition hover:border-[var(--color-gold)]/50 hover:text-[var(--color-gold)]"
               >
                 <Plus size={15} />
+              </button>
+            </div>
+            <div className="mt-1.5 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowCustomSize(!showCustomSize)}
+                className="text-[10px] font-semibold text-[var(--color-gold)] hover:underline cursor-pointer"
+              >
+                {showCustomSize ? '← Choose standard size' : '✎ Enter custom size'}
               </button>
             </div>
             <ChipList chips={form.sizes} onRemove={(v) => removeChip('sizes', v)} color="purple" />
