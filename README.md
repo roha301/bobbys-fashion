@@ -1,134 +1,124 @@
-# ✨ Bobby Sales
+<div align="center">
+  <img src="frontend/public/logo.png" alt="Bobby's Fashion Logo" width="120" height="auto" style="margin-bottom: 20px;" />
 
-Welcome to **Bobby Sales** — a modern, minimal, and luxurious fashion discovery & affiliate marketing platform. 
-*Think Pinterest meets Zara, Nike, and Vogue.* 👗👟
+  # 👔 Bobby's Fashion 👗
+  
+  **A luxurious, minimal, and premium fashion discovery & affiliate marketing platform.**
+  
+  *Curating the finest styles from top stores (Amazon, Myntra, AJIO, Flipkart, Nykaa) into a single, cohesive, premium experience.*
+  
+  [Live Website](https://bobbys-fashion.vercel.app) • [Admin Portal](https://bobbys-fashion.vercel.app/admin/login)
+
+  ---
+
+  [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
+  [![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+  [![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+  [![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+  [![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=WMY-YELLOW)](https://www.python.org/)
+  [![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+  [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+  [![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
+  [![JWT](https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens&logoColor=white)](https://jwt.io/)
+  [![Make](https://img.shields.io/badge/Make.com-6236FF?style=for-the-badge&logoColor=white)](https://www.make.com/)
+</div>
 
 ---
 
-## 📖 What is Bobby Sales and Why does it exist?
+## 📖 Overview
 
-**The Problem:** Shopping for fashion online is fragmented. If you want to find the perfect outfit, you have to open Amazon, Myntra, AJIO, Nykaa, and Meesho separately, search each one, and compare. It's exhausting!
+**Bobby's Fashion** addresses a simple problem: fashion shopping online is highly fragmented. Comparing outfits across Amazon, Myntra, AJIO, Nykaa, and Flipkart requires opening dozens of tabs. 
 
-**The Solution (Bobby Sales):** We've built a single, beautifully curated platform that brings the absolute best fashion pieces from *all* these stores into one unified feed. 
-We do the hard work of finding the trending items and the best deals, so the user just enjoys a seamless discovery experience. 
+This platform aggregates and curates the finest trending items and daily discounts into a single, unified, premium feed. 
 
-When a user finds something they love, they click "Buy Now" and are seamlessly redirected to the original store (via an affiliate link) to complete their purchase. 
-
-> **Important:** This is *not* an e-commerce store! There are no carts, checkouts, or payment gateways here—just pure discovery, curation, and inspiration.
+> **Affiliate Model:** This is a discovery-first curation platform rather than an e-commerce store. Clicking **Buy Now** seamlessly redirects users to the host store (via affiliate links) to complete transactions.
 
 ---
 
-## 🛠️ Tech Stack & Why We Chose It
+## ✨ Features
 
-We wanted this platform to be lightning-fast, easy to maintain, and visually stunning. Here is the technology we used to achieve that:
-
-### Frontend (User Interface)
-- ⚛️ **React 19 + Vite:** React allows us to build complex, interactive UI components, while Vite provides an incredibly fast development server and optimized production builds.
-- 💅 **Tailwind CSS v4:** Allows us to rapidly style the application with utility classes, keeping our design system consistent and our CSS footprint tiny.
-- 🛣️ **React Router:** Provides smooth, instant page transitions without reloading the browser.
-- 🎬 **Framer Motion:** Adds buttery-smooth scroll reveals and micro-interactions that give the site a premium, "luxurious" feel.
-
-### Backend (API & Data)
-- ⚡ **Python FastAPI:** One of the fastest Python frameworks available. It automatically generates API documentation and handles data validation effortlessly.
-- 🗄️ **Supabase PostgreSQL:** A robust, cloud-hosted PostgreSQL database that powers the platform seamlessly.
-- 🔐 **JWT (python-jose) & bcrypt:** Industry-standard security for protecting the Admin Dashboard, ensuring only authorized users can add or edit products.
+- **💎 High-End Design System:** Premium dark-themed admin layout, glassmorphic public header, sleek cards, and elegant typography (Poppins & Outfit).
+- **🛍️ Intelligent Scraper:** Paste an Amazon, Myntra, AJIO, Flipkart, or Nykaa link into the Admin Dashboard, and the system automatically pre-fills the Title, Description, Brand, Price, and Product Images.
+- **☁️ Cloud Storage Integration:** Files uploaded via the dashboard are directly stored in a public Supabase Storage bucket, bypassing local filesystem constraints.
+- **🔥 Trending, Deals & Featured Sections:** Easily flag products to showcase them in the homepage carousel, editor's picks grid, or daily deals section.
+- **🔍 Advanced Search & Filters:** Live search input matching product names, brands, categories, price sorting, and store badges.
+- **🔐 Dual-Authentication System:** 
+  - **Admin Access:** Protected by standard secure JWT + bcrypt authentication.
+  - **User Login:** Supports custom registration/login AND secure **Google Sign-in** popup authentication.
+- **📬 Serverless Webhook Notifications:** User messages submitted via the Contact form are routed via a Supabase Database Webhook to Make.com, instantly delivering details to your Gmail.
 
 ---
 
 ## 🚀 Quick Start Guide
 
-Let's get you up and running in minutes!
+Set up the project locally in less than 5 minutes.
 
 ### 1. Start the Backend API
-Open your terminal and run the following:
-
 ```bash
 cd backend
 python3 -m venv venv 
-source venv/bin/activate       # On Windows use: venv\Scripts\activate
+source venv/bin/activate       # On Windows use: .\venv\Scripts\activate
 pip install -r requirements.txt
-python seed.py                 # Populates the DB with sample products & an admin user
+python seed.py                 # Seeds database with starting categories
 uvicorn app.main:app --reload --port 8000
 ```
 
-### 2. Start the Frontend (in a new terminal tab)
+### 2. Start the Frontend Dev Server
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-### 3. Explore! 🎉
-- **Main Site:** Open `http://localhost:5173` in your browser.
-- **Admin Dashboard:** Go to `http://localhost:5173/admin/login` (Login: `admin` / `bobbysales123`)
+- **Main site:** `http://localhost:5173`
+- **Backend API docs (Swagger):** `http://localhost:8000/docs`
 
 ---
 
-## 💎 What's Included?
+## 🔌 API Endpoints Reference
 
-- 🎨 **Public Pages:** Hero sections, Trending Categories, Deals, Featured items, and Masonry grids. Live Search and robust category filters (price, brand, store, rating).
-- 🎛️ **Admin Dashboard:** Secure portal to manage products (add/edit/delete), handle image uploads, and control toggles for "Featured", "Trending", and "Deals".
-- ✨ **Premium Design:** Glassmorphism, rounded cards, sleek typography (Poppins & Inter), and beautiful shimmer loading states.
+The FastAPI server exposes the following RESTful routes under `/api`:
 
----
+### Products
+- `GET /api/products` - Fetch products with query parameters (category, store, brand, featured, trending, deals, and search query).
+- `GET /api/products/{id}` - Fetch details of a single product.
+- `POST /api/products/{id}/click` - Register click analytics for product redirect links.
+- `POST /api/products` *(Admin Token Required)* - Create a new product.
+- `PUT /api/products/{id}` *(Admin Token Required)* - Edit product details.
+- `DELETE /api/products/{id}` *(Admin Token Required)* - Delete a product.
 
-## 🌍 Deploying to Production
+### Categories
+- `GET /api/categories` - Fetch all categories.
+- `POST /api/categories` *(Admin Token Required)* - Add a category.
+- `PUT /api/categories/{id}` *(Admin Token Required)* - Edit a category name or emoji.
+- `DELETE /api/categories/{id}` *(Admin Token Required)* - Remove a category.
 
-- **Frontend:** Run `npm run build` inside `frontend/` → Deploy `dist/` to Vercel, Netlify, or Cloudflare Pages.
-- **Backend:** Deploy `backend/` to Render, Railway, or Fly.io. Ensure you set a secure `BOBBY_SALES_SECRET_KEY` environment variable.
+### Auth
+- `POST /api/auth/user/register` - Create a standard user account.
+- `POST /api/auth/user/login` - Standard email/password user login.
+- `POST /api/auth/user/google` - Sign in/register securely with Google JWT token.
+- `POST /api/auth/login` - Admin dashboard token generation (JWT).
+- `GET /api/auth/status` - Returns whether the primary admin user has been configured.
 
----
----
-*Curated with style. Built with passion.*
-
----
-
-## 🛠️ Complete Tech Stack Summary
-
-Here is the final set of technologies used across the entire Bobby Sales platform:
-
-| Layer | Technology | Purpose |
-| :--- | :--- | :--- |
-| **Frontend** | React 19, Vite, Tailwind CSS v4, Framer Motion, React Router | Modern, responsive, and luxurious UI with micro-animations and smooth routing |
-| **Backend** | Python FastAPI, Uvicorn | High-performance async API server |
-| **Database** | Supabase (PostgreSQL) | Secure and scalable cloud-based relational database |
-| **Cloud Storage** | Supabase Storage | Bypasses local filesystem constraints to store product images publicly |
-| **Authentication** | JWT, bcrypt, Google OAuth | Secure admin logins, custom user registrations, and Google Sign-in popup integration |
-| **Deployment** | Vercel | Hosting for both the React frontend and serverless FastAPI backend |
-| **Integrations** | Make.com (formerly Integromat) | Webhook automation for sending contact form messages directly to your Gmail |
+### Utilities
+- `POST /api/upload` *(Admin Token Required)* - Uploads product images to Supabase CDN bucket.
+- `GET /api/admin/scrape` *(Admin Token Required)* - Initiates the background metadata scraping parser.
 
 ---
 
-## 🔌 API Endpoints Documentation
+## 🌍 Environment Variables
 
-The FastAPI backend exposes the following RESTful API endpoints at `/api`:
+Create `.env` files in their respective folders to link your cloud environments.
 
-### 1. Products
-- **`GET /api/products`**: Fetch products with optional filtering (by category, store, brand, featured, trending, deals, and query search).
-- **`GET /api/products/{id}`**: Fetch details of a single product.
-- **`POST /api/products/{id}/click`**: Register a click event for product affiliate links (analytics).
-- **`POST /api/products`** *(Admin Token)*: Create a new product.
-- **`PUT /api/products/{id}`** *(Admin Token)*: Update an existing product.
-- **`DELETE /api/products/{id}`** *(Admin Token)*: Delete a product.
+#### Frontend (`frontend/.env.local`)
+```env
+VITE_GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+```
 
-### 2. Categories
-- **`GET /api/categories`**: Fetch all available product categories.
-- **`POST /api/categories`** *(Admin Token)*: Add a new category.
-- **`PUT /api/categories/{id}`** *(Admin Token)*: Edit a category.
-- **`DELETE /api/categories/{id}`** *(Admin Token)*: Remove a category.
-
-### 3. User Authentication
-- **`POST /api/auth/user/register`**: Register a new user (requires name, email, password, and confirm password on the frontend).
-- **`POST /api/auth/user/login`**: Authenticate a user with email and password.
-- **`POST /api/auth/user/google`**: Securely authenticate a user with Google OAuth (verifies Google token payload on the server and returns a session JWT).
-
-### 4. Admin Authentication
-- **`POST /api/auth/register-first`**: Register the very first admin user (disabled once any admin exists).
-- **`POST /api/auth/login`**: Authenticate an admin user and return a JWT access token.
-- **`GET /api/auth/status`**: Returns whether an admin account has been configured.
-
-### 5. Miscellaneous
-- **`POST /api/upload`** *(Admin Token)*: Upload a product image. Automatically saves to Supabase Storage (public `products` bucket) and returns the public CDN URL.
-- **`GET /api/admin/scrape`** *(Admin Token)*: Scrapes product data (Title, Price, Image, Brand) from external shop links (Amazon, Myntra, etc.) for quick auto-fill.
-- **`GET /api/health`**: Simple health check endpoint for checking backend live status.
-
+#### Backend (`backend/.env` & Vercel Dashboard)
+```env
+DATABASE_URL=postgresql+psycopg://postgres.[project-id]:[password]@[host]:6543/postgres
+GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+SUPABASE_URL=https://[project-id].supabase.co
+SUPABASE_KEY=your-supabase-service-role-secret-key
+```
