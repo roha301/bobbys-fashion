@@ -70,18 +70,52 @@ def user_login(payload: schemas.UserLoginIn, db: Session = Depends(get_db)):
     return user
 
 
-@router.post("/user/google", response_model=schemas.UserOut)
+import os
+from google.oauth2 import id_token
+from google.auth.transport import requests
+
+class UserLoginOut(BaseModel):
+    user: schemas.UserOut
+    access_token: str
+    token_type: str = "bearer"
+
+@router.post("/user/google", response_model=UserLoginOut)
 def user_google(payload: schemas.UserGoogleIn, db: Session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.email == payload.email).first()
+    GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+    if not GOOGLE_CLIENT_ID:
+        raise HTTPException(status_code=500, detail="Google Client ID not configured on server")
+
+    try:
+        # Verify the token signature and audience
+        id_info = id_token.verify_oauth2_token(
+            payload.credential, 
+            requests.Request(), 
+            GOOGLE_CLIENT_ID
+        )
+    except ValueError:
+        raise HTTPException(status_code=401, detail="Invalid Google token")
+
+    email = id_info.get("email")
+    name = id_info.get("name", "Google User")
+    avatar = id_info.get("picture", "")
+
+    if not email:
+        raise HTTPException(status_code=400, detail="Google token missing email")
+
+    user = db.query(models.User).filter(models.User.email == email).first()
     if not user:
-        user = models.User(name=payload.name, email=payload.email, avatar=payload.avatar, provider="google")
+        user = models.User(name=name, email=email, avatar=avatar, provider="google")
         db.add(user)
         db.commit()
         db.refresh(user)
     else:
         if user.provider != "google":
             user.provider = "google"
-        user.avatar = payload.avatar
+        user.avatar = avatar
         db.commit()
         db.refresh(user)
-    return user
+    
+    # Create session token for the user
+    token = create_access_token({"sub": str(user.id)})
+    
+    return UserLoginOut(user=user, access_token=token)

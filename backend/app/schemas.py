@@ -102,9 +102,7 @@ class UserLoginIn(BaseModel):
 
 
 class UserGoogleIn(BaseModel):
-    name: str
-    email: EmailStr
-    avatar: str
+    credential: str
 
 
 class UserOut(BaseModel):

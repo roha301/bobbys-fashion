@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Mail, Lock, User, CheckCircle2 } from 'lucide-react'
+import { GoogleLogin } from '@react-oauth/google'
 import { useUserAuth } from '../context/UserAuthContext'
 
 export default function UserAuthModal({ isOpen, onClose }) {
@@ -31,76 +32,7 @@ export default function UserAuthModal({ isOpen, onClose }) {
     }, 1000)
   }
 
-  // Handle real Google Login script loading
-  useEffect(() => {
-    if (!isOpen) return
-
-    // Inject Google script
-    const script = document.createElement('script')
-    script.src = 'https://accounts.google.com/gsi/client'
-    script.async = true
-    script.defer = true
-    
-    script.onload = () => {
-      if (window.google) {
-        window.google.accounts.id.initialize({
-          client_id: '954482140978-60ogqjgq09nadu6nvl0spd21sbeo15ns.apps.googleusercontent.com',
-          callback: window.handleGoogleCredentialResponse,
-        })
-        
-        window.google.accounts.id.renderButton(
-          document.getElementById('google-signin-btn-container'),
-          { 
-            theme: 'outline', 
-            size: 'large', 
-            width: 380, 
-            shape: 'circle',
-            logo_alignment: 'center'
-          }
-        )
-      }
-    }
-
-    document.body.appendChild(script)
-
-    window.handleGoogleCredentialResponse = async (response) => {
-      setLoading(true)
-      // Decode JWT token
-      try {
-        const base64Url = response.credential.split('.')[1]
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
-        const jsonPayload = decodeURIComponent(
-          window.atob(base64)
-            .split('')
-            .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-            .join('')
-        )
-        const payload = JSON.parse(jsonPayload)
-        
-        const googleUser = {
-          name: payload.name,
-          email: payload.email,
-          avatar: payload.picture,
-          provider: 'google'
-        }
-        
-        await auth.loginWithGoogle(googleUser)
-        setLoading(false)
-        setSuccess(true)
-        setTimeout(() => {
-          setSuccess(false)
-          onClose()
-        }, 1500)
-      } catch (err) {
-        console.error('Failed to parse Google login token', err)
-        setLoading(false)
-      }
-    }
-
-    return () => {
-      document.body.removeChild(script)
-    }
-  }, [isOpen])
+// No manual script injection needed anymore, we use @react-oauth/google
 
   const handleGoogleClick = async () => {
     // Fallback/Mock trigger
@@ -183,7 +115,31 @@ export default function UserAuthModal({ isOpen, onClose }) {
                 {/* Google Sign-in */}
                 <div className="space-y-4">
                   {/* Official Google Sign-In Button Container */}
-                  <div id="google-signin-btn-container" className="w-full flex justify-center" />
+                  <div className="w-full flex justify-center">
+                    <GoogleLogin
+                      onSuccess={async (credentialResponse) => {
+                        setLoading(true)
+                        try {
+                          await auth.loginWithGoogle({ credential: credentialResponse.credential })
+                          setLoading(false)
+                          setSuccess(true)
+                          setTimeout(() => {
+                            setSuccess(false)
+                            onClose()
+                          }, 1500)
+                        } catch (err) {
+                          console.error('Failed backend google login', err)
+                          setLoading(false)
+                        }
+                      }}
+                      onError={() => {
+                        console.error('Login Failed')
+                      }}
+                      useOneTap
+                      shape="circle"
+                      size="large"
+                    />
+                  </div>
 
                   {/* Fallback/Demo Google Login */}
                   <button
