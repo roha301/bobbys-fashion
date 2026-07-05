@@ -9,6 +9,8 @@ export default function UserAuthModal({ isOpen, onClose }) {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
   
@@ -16,6 +18,13 @@ export default function UserAuthModal({ isOpen, onClose }) {
 
   const handleCredentialsSubmit = (e) => {
     e.preventDefault()
+    setError('')
+
+    if (tab === 'signup' && password !== confirmPassword) {
+      setError('Passwords do not match')
+      return
+    }
+
     setLoading(true)
     setTimeout(() => {
       if (tab === 'login') {
@@ -159,6 +168,11 @@ export default function UserAuthModal({ isOpen, onClose }) {
 
                   {/* Credentials Form */}
                   <form onSubmit={handleCredentialsSubmit} className="space-y-4">
+                    {error && (
+                      <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600 border border-red-100">
+                        {error}
+                      </div>
+                    )}
                     {tab === 'signup' && (
                       <div className="relative">
                         <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-ink-soft)]" />
@@ -196,6 +210,20 @@ export default function UserAuthModal({ isOpen, onClose }) {
                         className="w-full rounded-full border border-[var(--color-line)] bg-[var(--color-paper-dim)]/50 py-3.5 pl-11 pr-4 text-sm text-[var(--color-ink)] placeholder-white/0 outline-none transition focus:border-[var(--color-gold)] focus:bg-white"
                       />
                     </div>
+
+                    {tab === 'signup' && (
+                      <div className="relative">
+                        <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-ink-soft)]" />
+                        <input
+                          required
+                          type="password"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          placeholder="Confirm Password"
+                          className="w-full rounded-full border border-[var(--color-line)] bg-[var(--color-paper-dim)]/50 py-3.5 pl-11 pr-4 text-sm text-[var(--color-ink)] placeholder-white/0 outline-none transition focus:border-[var(--color-gold)] focus:bg-white"
+                        />
+                      </div>
+                    )}
 
                     <button
                       type="submit"
