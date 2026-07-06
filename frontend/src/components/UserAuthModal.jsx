@@ -16,7 +16,7 @@ export default function UserAuthModal({ isOpen, onClose }) {
   
   const auth = useUserAuth()
 
-  const handleCredentialsSubmit = (e) => {
+  const handleCredentialsSubmit = async (e) => {
     e.preventDefault()
     setError('')
 
@@ -26,19 +26,37 @@ export default function UserAuthModal({ isOpen, onClose }) {
     }
 
     setLoading(true)
-    setTimeout(() => {
+    try {
       if (tab === 'login') {
-        auth.login(email, password)
+        await auth.login(email, password)
       } else {
-        auth.signup(name, email, password)
+        await auth.signup(name, email, password)
       }
-      setLoading(false)
       setSuccess(true)
       setTimeout(() => {
         setSuccess(false)
         onClose()
       }, 1500)
-    }, 1000)
+    } catch (err) {
+      // Decode potential JSON error message from backend client
+      const raw = err?.message || ''
+      const match = raw.match(/API \d+: (.+)/s)
+      const detail = match ? match[1] : raw
+      let friendly = 'Authentication failed. Please verify your details.'
+      try {
+        const parsed = JSON.parse(detail)
+        if (parsed?.detail) {
+          friendly = Array.isArray(parsed.detail)
+            ? parsed.detail.map((d) => d.msg || JSON.stringify(d)).join(', ')
+            : String(parsed.detail)
+        }
+      } catch {
+        if (detail) friendly = detail
+      }
+      setError(friendly)
+    } finally {
+      setLoading(false)
+    }
   }
 
 // No manual script injection needed anymore, we use @react-oauth/google

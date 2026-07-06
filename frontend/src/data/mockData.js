@@ -12,6 +12,17 @@ export const CATEGORIES = [
   { id: 'jeans', name: 'Jeans', emoji: '👖' },
 ]
 
+export const DEFAULT_SUBCATEGORIES = {
+  men: ['Trousers', 'Loose Fits', 'Shirts', 'T-shirts', 'Kurtas', 'Suit/Coats'],
+  women: ['Dresses', 'Tops', 'Sarees', 'Kurtis', 'Skirts', 'Trousers'],
+  kids: ['T-shirts', 'Shirts', 'Jeans', 'Dresses', 'Shorts'],
+  accessories: ['Watch', 'Handbags', 'Goggles', 'Belts', 'Wallets'],
+  watches: ['Analog', 'Digital', 'Smart Watch', 'Chronograph'],
+  bags: ['Handbags', 'Backpacks', 'Clutches', 'Sling Bags'],
+  shoes: ['Casual', 'Formal', 'Sneakers', 'Sports', 'Boots'],
+  footwear: ['Casual', 'Formal', 'Sneakers', 'Sports', 'Boots']
+}
+
 export const STORES = ['Amazon', 'Myntra', 'AJIO', 'Flipkart', 'Meesho', 'Nykaa']
 
 const img = (seed, w = 600, h = 800) => `https://picsum.photos/seed/${seed}/${w}/${h}`

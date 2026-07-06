@@ -1,7 +1,33 @@
+import { useState, useEffect, useMemo } from 'react'
+import { api } from '../api/client'
+import { DEFAULT_SUBCATEGORIES } from '../data/mockData'
+
 const RATINGS = [4.5, 4, 3.5, 3]
 
-export default function FilterSidebar({ filters, setFilters, brands = [], stores = [], onClear }) {
+export default function FilterSidebar({ category, filters, setFilters, brands = [], stores = [], onClear }) {
   const update = (patch) => setFilters((f) => ({ ...f, ...patch }))
+
+  const [dbSubcategories, setDbSubcategories] = useState([])
+
+  useEffect(() => {
+    if (category) {
+      api.getSubcategories(category)
+        .then(setDbSubcategories)
+        .catch(() => setDbSubcategories([]))
+    } else {
+      setDbSubcategories([])
+    }
+  }, [category])
+
+  const subcategories = useMemo(() => {
+    if (!category) return []
+    const preDefined = DEFAULT_SUBCATEGORIES[category.toLowerCase()] || []
+    const combined = new Set([
+      ...preDefined,
+      ...dbSubcategories
+    ])
+    return Array.from(combined)
+  }, [category, dbSubcategories])
 
   return (
     <aside className="w-full shrink-0 lg:w-64">
@@ -32,6 +58,26 @@ export default function FilterSidebar({ filters, setFilters, brands = [], stores
             />
           </div>
         </FilterGroup>
+
+        {subcategories.length > 0 && (
+          <FilterGroup label="Subcategory">
+            <div className="flex flex-wrap gap-2">
+              {subcategories.map((sub) => (
+                <button
+                  key={sub}
+                  onClick={() => update({ subcategory: filters.subcategory === sub ? '' : sub })}
+                  className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${
+                    filters.subcategory === sub
+                      ? 'border-[var(--color-ink)] bg-[var(--color-ink)] text-white'
+                      : 'border-[var(--color-line)] text-[var(--color-ink-soft)] hover:border-[var(--color-gold)]'
+                  }`}
+                >
+                  {sub}
+                </button>
+              ))}
+            </div>
+          </FilterGroup>
+        )}
 
         {brands.length > 0 && (
           <FilterGroup label="Brand">

@@ -69,3 +69,16 @@ def delete_category(
     db.delete(category)
     db.commit()
     return {"ok": True}
+
+
+@router.get("/{category_id}/subcategories", response_model=List[str])
+def list_subcategories(category_id: str, db: Session = Depends(get_db)):
+    results = (
+        db.query(models.Product.subcategory)
+        .filter(models.Product.category == category_id)
+        .filter(models.Product.subcategory != None)
+        .filter(models.Product.subcategory != "")
+        .distinct()
+        .all()
+    )
+    return [r[0] for r in results]

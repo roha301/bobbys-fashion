@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { UploadCloud, X, Plus, Link2, Loader2 } from 'lucide-react'
-import { CATEGORIES, STORES } from '../../data/mockData'
+import { CATEGORIES, STORES, DEFAULT_SUBCATEGORIES } from '../../data/mockData'
 import { api } from '../../api/client'
 import { useAdminAuth } from '../../context/AdminAuthContext'
 
@@ -62,6 +62,8 @@ export default function ProductForm({ initial, onSaved, onCancel }) {
   }
 
   const [categories, setCategories] = useState([])
+  const [dbSubcategories, setDbSubcategories] = useState([])
+
   useEffect(() => {
     api.getCategories()
       .then((data) => {
@@ -74,6 +76,16 @@ export default function ProductForm({ initial, onSaved, onCancel }) {
         setCategories(CATEGORIES)
       })
   }, [])
+
+  useEffect(() => {
+    if (form.category) {
+      api.getSubcategories(form.category)
+        .then(setDbSubcategories)
+        .catch(() => setDbSubcategories([]))
+    } else {
+      setDbSubcategories([])
+    }
+  }, [form.category])
 
   // ── Image upload ──
   const handleUpload = async (e) => {
@@ -236,7 +248,22 @@ export default function ProductForm({ initial, onSaved, onCancel }) {
             </select>
           </Field>
           <Field label="Subcategory">
-            <Input value={form.subcategory} onChange={(e) => set({ subcategory: e.target.value })} placeholder="e.g. Coats" />
+            <input
+              type="text"
+              list="form-subcategory-suggestions"
+              value={form.subcategory}
+              onChange={(e) => set({ subcategory: e.target.value })}
+              placeholder="e.g. Coats"
+              className={inputCls}
+            />
+            <datalist id="form-subcategory-suggestions">
+              {Array.from(new Set([
+                ...(DEFAULT_SUBCATEGORIES[form.category?.toLowerCase()] || []),
+                ...dbSubcategories
+              ])).map((sub) => (
+                <option key={sub} value={sub} />
+              ))}
+            </datalist>
           </Field>
           <Field label="Store">
             <select value={form.store} onChange={(e) => set({ store: e.target.value })} className={inputCls}>

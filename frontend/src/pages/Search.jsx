@@ -5,7 +5,7 @@ import FilterSidebar from '../components/FilterSidebar'
 import ProductCard from '../components/ProductCard'
 import SkeletonCard from '../components/SkeletonCard'
 import { useProducts, useBrandsAndStores } from '../hooks/useProducts'
-import { PRODUCTS } from '../data/mockData'
+import { api } from '../api/client'
 
 const TRENDING_SEARCHES = ['Satin dresses', 'Chelsea boots', 'Wool coats', 'Gold watches', 'Linen blazers', 'Crossbody bags']
 
@@ -23,10 +23,29 @@ export default function Search() {
   const queryFilters = useMemo(() => ({ q, ...filters }), [q, filters])
   const { loading, data } = useProducts(queryFilters)
 
-  const suggestions = useMemo(() => {
-    if (!term.trim()) return []
-    const t = term.toLowerCase()
-    return PRODUCTS.filter((p) => p.name.toLowerCase().includes(t) || p.brand.toLowerCase().includes(t)).slice(0, 5)
+  const [suggestions, setSuggestions] = useState([])
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false)
+
+  useEffect(() => {
+    if (!term.trim()) {
+      setSuggestions([])
+      return
+    }
+    setLoadingSuggestions(true)
+    const delayDebounceFn = setTimeout(() => {
+      api.search(term)
+        .then((res) => {
+          setSuggestions(res.slice(0, 5))
+        })
+        .catch(() => {
+          setSuggestions([])
+        })
+        .finally(() => {
+          setLoadingSuggestions(false)
+        })
+    }, 300)
+
+    return () => clearTimeout(delayDebounceFn)
   }, [term])
 
   const submit = (e) => {
@@ -60,7 +79,7 @@ export default function Search() {
                 }}
                 className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm hover:bg-[var(--color-paper-dim)]"
               >
-                <img src={s.images[0]} alt="" className="h-9 w-9 rounded-lg object-cover" />
+                <img src={s.images?.[0] || '/logo.png'} alt="" className="h-9 w-9 rounded-lg object-cover" />
                 <span>
                   <span className="block font-medium text-[var(--color-ink)]">{s.name}</span>
                   <span className="block text-xs text-[var(--color-ink-soft)]">{s.brand}</span>

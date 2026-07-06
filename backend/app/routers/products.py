@@ -15,6 +15,7 @@ router = APIRouter(prefix="/api/products", tags=["products"])
 def list_products(
     db: Session = Depends(get_db),
     category: Optional[str] = None,
+    subcategory: Optional[str] = None,
     brand: Optional[str] = None,
     store: Optional[str] = None,
     featured: Optional[bool] = None,
@@ -30,6 +31,8 @@ def list_products(
 
     if category:
         query = query.filter(models.Product.category == category)
+    if subcategory:
+        query = query.filter(models.Product.subcategory.ilike(subcategory))
     if brand:
         query = query.filter(models.Product.brand.ilike(brand))
     if store:

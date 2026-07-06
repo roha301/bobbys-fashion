@@ -37,7 +37,7 @@ export function UserAuthProvider({ children }) {
       }
       setUser(fallbackUser)
       localStorage.setItem('bobby_sales_user', JSON.stringify(fallbackUser))
-      return fallbackUser
+      throw err
     }
   }
 
@@ -57,27 +57,46 @@ export function UserAuthProvider({ children }) {
       }
       setUser(fallbackUser)
       localStorage.setItem('bobby_sales_user', JSON.stringify(fallbackUser))
-      return fallbackUser
+      throw err
     }
   }
 
   const loginWithGoogle = async (googleData) => {
     try {
-      const data = await api.userGoogleAuth(googleData.name, googleData.email, googleData.avatar)
+      const data = await api.userGoogleAuth(googleData.credential)
       setUser(data)
       localStorage.setItem('bobby_sales_user', JSON.stringify(data))
       return data
     } catch (err) {
+      // Decode the credential locally if offline or if backend fails and we need a fallback,
+      // or if it's mock/demo login.
+      let decoded = {}
+      if (googleData.credential) {
+        try {
+          const base64Url = googleData.credential.split('.')[1]
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+          const jsonPayload = decodeURIComponent(
+            window.atob(base64)
+              .split('')
+              .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+              .join('')
+          )
+          decoded = JSON.parse(jsonPayload)
+        } catch (e) {
+          console.error('Failed to decode google credential locally', e)
+        }
+      }
+
       // Offline fallback
       const fallbackUser = {
-        name: googleData.name || 'Rohan Ghuge',
-        email: googleData.email || 'ghugerohan13@gmail.com',
-        avatar: googleData.avatar || 'https://lh3.googleusercontent.com/a/default-user=s96-c',
+        name: googleData.name || decoded.name || 'Rohan Ghuge',
+        email: googleData.email || decoded.email || 'ghugerohan13@gmail.com',
+        avatar: googleData.avatar || decoded.picture || 'https://lh3.googleusercontent.com/a/default-user=s96-c',
         provider: 'google'
       }
       setUser(fallbackUser)
       localStorage.setItem('bobby_sales_user', JSON.stringify(fallbackUser))
-      return fallbackUser
+      throw err
     }
   }
 

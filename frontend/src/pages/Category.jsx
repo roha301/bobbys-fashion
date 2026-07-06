@@ -41,6 +41,7 @@ export default function Category() {
       <div className="flex flex-col gap-8 lg:flex-row">
         <div className={`${mobileFiltersOpen ? 'block' : 'hidden'} lg:block`}>
           <FilterSidebar
+            category={id}
             filters={filters}
             setFilters={setFilters}
             brands={brands}

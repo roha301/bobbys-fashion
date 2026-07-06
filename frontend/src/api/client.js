@@ -39,6 +39,7 @@ export const api = {
 
   // Categories
   getCategories: () => request('/categories'),
+  getSubcategories: (categoryId) => request(`/categories/${categoryId}/subcategories`),
   createCategory: (data, token) =>
     request('/categories', { method: 'POST', body: JSON.stringify(data), headers: authHeader(token) }),
   updateCategory: (id, data, token) =>
@@ -66,8 +67,8 @@ export const api = {
     request('/auth/user/register', { method: 'POST', body: JSON.stringify({ name, email, password }) }),
   userLogin: (email, password) =>
     request('/auth/user/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
-  userGoogleAuth: (name, email, avatar) =>
-    request('/auth/user/google', { method: 'POST', body: JSON.stringify({ name, email, avatar }) }),
+  userGoogleAuth: (credential) =>
+    request('/auth/user/google', { method: 'POST', body: JSON.stringify({ credential }) }),
 
   // Contact
   sendContact: (data) => request('/contact', { method: 'POST', body: JSON.stringify(data) }),
