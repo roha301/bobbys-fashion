@@ -3,15 +3,15 @@ import { createContext, useContext, useState } from 'react'
 const AdminAuthContext = createContext(null)
 
 export function AdminAuthProvider({ children }) {
-  const [token, setToken] = useState(() => sessionStorage.getItem('bobby_admin_token'))
+  const [token, setToken] = useState(() => localStorage.getItem('bobby_admin_token'))
 
   const login = (t) => {
-    sessionStorage.setItem('bobby_admin_token', t)
+    localStorage.setItem('bobby_admin_token', t)
     setToken(t)
   }
 
   const logout = () => {
-    sessionStorage.removeItem('bobby_admin_token')
+    localStorage.removeItem('bobby_admin_token')
     setToken(null)
   }
 

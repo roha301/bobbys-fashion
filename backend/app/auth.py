@@ -10,7 +10,7 @@ from jose import JWTError, jwt
 # In production, set BOBBY_SALES_SECRET_KEY as an environment variable.
 SECRET_KEY = os.environ.get("BOBBY_SALES_SECRET_KEY", "dev-secret-change-me-in-production")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 12  # 12 hours
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 365 * 100  # 100 years
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login", auto_error=False)
 
