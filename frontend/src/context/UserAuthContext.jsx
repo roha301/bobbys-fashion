@@ -12,7 +12,13 @@ export function UserAuthProvider({ children }) {
     const saved = localStorage.getItem('bobby_sales_user')
     if (saved) {
       try {
-        setUser(JSON.parse(saved))
+        let parsed = JSON.parse(saved)
+        // Normalize nested Google auth response if stored in localStorage from previous login
+        if (parsed && parsed.user && !parsed.name) {
+          parsed = parsed.user
+          localStorage.setItem('bobby_sales_user', JSON.stringify(parsed))
+        }
+        setUser(parsed)
       } catch (e) {
         localStorage.removeItem('bobby_sales_user')
       }
@@ -64,9 +70,10 @@ export function UserAuthProvider({ children }) {
   const loginWithGoogle = async (googleData) => {
     try {
       const data = await api.userGoogleAuth(googleData.credential)
-      setUser(data)
-      localStorage.setItem('bobby_sales_user', JSON.stringify(data))
-      return data
+      const userObj = data.user || data
+      setUser(userObj)
+      localStorage.setItem('bobby_sales_user', JSON.stringify(userObj))
+      return userObj
     } catch (err) {
       // Decode the credential locally if offline or if backend fails and we need a fallback,
       // or if it's mock/demo login.

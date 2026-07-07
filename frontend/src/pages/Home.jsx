@@ -6,7 +6,8 @@ import CategoryCard from '../components/CategoryCard'
 import ProductCard from '../components/ProductCard'
 import SkeletonCard from '../components/SkeletonCard'
 import TrendingCarousel from '../components/TrendingCarousel'
-import { useProducts, useCategories } from '../hooks/useProducts'
+import { useHomeData } from '../hooks/useProducts'
+
 
 const FEATURES = [
   { icon: Sparkles, title: 'Curated Products', desc: 'Every piece is hand-picked for quality, fit, and lasting style — never algorithm-only noise.' },
@@ -15,10 +16,12 @@ const FEATURES = [
 ]
 
 export default function Home() {
-  const categories = useCategories()
-  const trending = useProducts({ trending: true })
-  const deals = useProducts({ deal: true })
-  const featured = useProducts({ featured: true })
+  const { loading, error, data } = useHomeData()
+  const categories = { loading, error, data: data.categories }
+  const trending = { loading, error, data: data.trending }
+  const deals = { loading, error, data: data.deals }
+  const featured = { loading, error, data: data.featured }
+
 
   return (
     <div>

@@ -21,6 +21,21 @@ MAX_UPLOAD_BYTES = 5 * 1024 * 1024  # 5MB
 logger = logging.getLogger("bobby_sales")
 
 
+@router.get("/home", response_model=schemas.HomeDataOut)
+def get_home_data(db: Session = Depends(get_db)):
+    categories = db.query(models.Category).all()
+    trending = db.query(models.Product).filter(models.Product.trending == True).all()
+    deals = db.query(models.Product).filter(models.Product.deal == True).all()
+    featured = db.query(models.Product).filter(models.Product.featured == True).all()
+    return {
+        "categories": categories,
+        "trending": trending,
+        "deals": deals,
+        "featured": featured
+    }
+
+
+
 def send_contact_email(name: str, email: str, message: str):
     recipient = "ghugerohan13@gmail.com"
     subject = f"New Contact Message from {name}"

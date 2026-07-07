@@ -49,6 +49,8 @@ export const api = {
 
   // Search
   search: (q) => request(`/search?q=${encodeURIComponent(q)}`),
+  getHomeData: () => request('/home'),
+
 
   // Stats (admin)
   getStats: (token) => request('/admin/stats', { headers: authHeader(token) }),

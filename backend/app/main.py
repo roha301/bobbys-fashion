@@ -11,18 +11,14 @@ from .database import Base, engine
 from .routers import products, categories, search, auth_router, misc
 from sqlalchemy import text
 
-Base.metadata.create_all(bind=engine)
+# Skip database/table creation when running on serverless platforms (Vercel) to speed up cold starts.
+# Tables are already created and columns are migrated in the production database.
+if not os.environ.get("VERCEL"):
+    try:
+        Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        print(f"Database table check failed: {e}")
 
-# Auto-add columns if they do not exist
-with engine.begin() as conn:
-    try:
-        conn.execute(text("ALTER TABLE products ADD COLUMN views INTEGER DEFAULT 0"))
-    except Exception:
-        pass
-    try:
-        conn.execute(text("ALTER TABLE products ADD COLUMN clicks INTEGER DEFAULT 0"))
-    except Exception:
-        pass
 
 app = FastAPI(
     title="Bobby Sales API",

@@ -52,6 +52,14 @@ class CategoryOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class HomeDataOut(BaseModel):
+    categories: List[CategoryOut]
+    trending: List[ProductOut]
+    deals: List[ProductOut]
+    featured: List[ProductOut]
+
+
+
 class ContactIn(BaseModel):
     name: str
     email: EmailStr

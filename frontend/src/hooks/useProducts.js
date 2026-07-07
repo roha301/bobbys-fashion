@@ -76,3 +76,49 @@ export function useBrandsAndStores() {
   // For now, return empty lists if there's no mock data
   return { brands: [], stores: [] }
 }
+
+export function useHomeData() {
+  const [state, setState] = useState({
+    loading: true,
+    error: null,
+    data: { categories: [], trending: [], deals: [], featured: [] },
+  })
+
+  useEffect(() => {
+    let cancelled = false
+    setState((s) => ({ ...s, loading: true }))
+
+    api
+      .getHomeData()
+      .then((data) => {
+        if (!cancelled) {
+          setState({
+            loading: false,
+            error: null,
+            data: {
+              categories: data.categories || [],
+              trending: data.trending || [],
+              deals: data.deals || [],
+              featured: data.featured || [],
+            },
+          })
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setState({
+            loading: false,
+            error: err.message,
+            data: { categories: [], trending: [], deals: [], featured: [] },
+          })
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  return state
+}
+

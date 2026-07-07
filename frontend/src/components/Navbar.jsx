@@ -104,7 +104,7 @@ export default function Navbar() {
                   <img src={user.avatar} alt={user.name} className="h-full w-full object-cover" />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center bg-[var(--color-paper-dim)] text-[var(--color-gold-dark)] text-xs font-bold">
-                    {user.name.charAt(0).toUpperCase()}
+                    {(user.name || user.email || 'U').charAt(0).toUpperCase()}
                   </div>
                 )}
               </button>
@@ -112,7 +112,7 @@ export default function Navbar() {
               {userMenuOpen && (
                 <div className="absolute right-0 mt-2 w-48 rounded-2xl border border-[var(--color-line)] bg-white p-3 shadow-xl z-50">
                   <div className="px-3 py-2 border-b border-[var(--color-line)] mb-2">
-                    <p className="text-xs font-bold text-[var(--color-ink)] truncate">{user.name}</p>
+                    <p className="text-xs font-bold text-[var(--color-ink)] truncate">{user.name || user.email || 'User'}</p>
                     <p className="text-[10px] text-[var(--color-ink-soft)] truncate">{user.email}</p>
                   </div>
                   <button
