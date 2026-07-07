@@ -7,6 +7,8 @@ from email.mime.multipart import MIMEMultipart
 
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
+from sqlalchemy import func
+
 
 from .. import models, schemas
 from ..database import get_db

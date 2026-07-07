@@ -17,12 +17,15 @@ elif SQLALCHEMY_DATABASE_URL.startswith("postgresql://"):
 
 connect_args = {}
 
-# Use NullPool to disable connection pooling inside SQLAlchemy, since Vercel serverless
-# instances are short-lived and should not hold onto persistent database connections.
+# Enable connection pooling to reuse database connections, particularly when using
+# Supabase's port 6543 transaction pooler. Warm serverless instances can reuse connections
+# and avoid a ~200ms handshake penalty on every request.
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, 
     connect_args=connect_args,
-    poolclass=NullPool
+    pool_size=5,
+    max_overflow=10,
+    pool_recycle=300
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
