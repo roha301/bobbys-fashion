@@ -17,6 +17,12 @@ const SIZE_OPTIONS = [
   '6', '7', '8', '9', '10', '11', 'One Size'
 ]
 
+const COMMON_COLORS = [
+  'Black', 'White', 'Gray', 'Beige', 'Brown',
+  'Gold', 'Silver', 'Red', 'Blue', 'Green',
+  'Navy', 'Pink', 'Purple', 'Orange', 'Yellow'
+]
+
 export default function ProductForm({ initial, onSaved, onCancel }) {
   const [form, setForm] = useState(initial ? { ...EMPTY, ...initial } : EMPTY)
   const [uploading, setUploading] = useState(false)
@@ -369,11 +375,36 @@ export default function ProductForm({ initial, onSaved, onCancel }) {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {/* Colors */}
           <Field label="Colors">
+            <div className="mb-2 flex flex-wrap gap-1">
+              {COMMON_COLORS.map((c) => {
+                const active = form.colors.includes(c)
+                return (
+                  <button
+                    type="button"
+                    key={c}
+                    onClick={() => {
+                      if (active) {
+                        removeChip('colors', c)
+                      } else {
+                        set({ colors: [...form.colors, c] })
+                      }
+                    }}
+                    className={`rounded-full border px-2.5 py-0.5 text-[10px] font-medium transition ${
+                      active
+                        ? 'border-blue-400 bg-blue-500/20 text-blue-300'
+                        : 'border-white/10 bg-white/5 text-white/50 hover:border-white/20 hover:text-white'
+                    }`}
+                  >
+                    {c}
+                  </button>
+                )
+              })}
+            </div>
             <ChipInput
               value={colorInput}
               onChange={setColorInput}
               onAdd={() => addChip('colors', colorInput, setColorInput)}
-              placeholder="e.g. Red, Navy…"
+              placeholder="Or type custom color and press +"
             />
             <ChipList chips={form.colors} onRemove={(v) => removeChip('colors', v)} color="blue" />
           </Field>

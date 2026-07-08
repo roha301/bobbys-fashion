@@ -16,6 +16,12 @@ const HD_CATEGORIES = [
 
 const STORES = ['Amazon', 'Flipkart', 'Myntra', 'Ajio', 'Nykaa', 'Meesho']
 
+const COMMON_COLORS = [
+  'Black', 'White', 'Gray', 'Beige', 'Brown',
+  'Gold', 'Silver', 'Red', 'Blue', 'Green',
+  'Navy', 'Pink', 'Purple', 'Orange', 'Yellow'
+]
+
 const EMPTY = {
   name: '', description: '', category: 'living_room',
   subcategory: '', brand: '', price: '', mrp: '', discount: '',
@@ -240,8 +246,33 @@ export default function HomeDecorProductForm({ initial, onSaved, onCancel }) {
       <FormSection title="Colors & Dimensions">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FormField label="Colors/Styles">
+            <div className="mb-2 flex flex-wrap gap-1">
+              {COMMON_COLORS.map((c) => {
+                const active = form.colors.includes(c)
+                return (
+                  <button
+                    type="button"
+                    key={c}
+                    onClick={() => {
+                      if (active) {
+                        removeChip('colors', c)
+                      } else {
+                        set({ colors: [...form.colors, c] })
+                      }
+                    }}
+                    className={`rounded-full border px-2.5 py-0.5 text-[10px] font-medium transition ${
+                      active
+                        ? 'border-blue-400 bg-blue-500/20 text-blue-300'
+                        : 'border-white/10 bg-white/5 text-white/50 hover:border-white/20 hover:text-white'
+                    }`}
+                  >
+                    {c}
+                  </button>
+                )
+              })}
+            </div>
             <div className="flex gap-2">
-              <input className={inputCls + ' flex-1'} value={colorInput} onChange={(e) => setColorInput(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addChip('colors', colorInput, setColorInput) } }} placeholder="e.g. White, Brown…" />
+              <input className={inputCls + ' flex-1'} value={colorInput} onChange={(e) => setColorInput(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addChip('colors', colorInput, setColorInput) } }} placeholder="Or type custom color and press +" />
               <button type="button" onClick={() => addChip('colors', colorInput, setColorInput)} className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/40 transition hover:border-[var(--color-gold)]/50 hover:text-[var(--color-gold)]">
                 <Plus size={15} />
               </button>
