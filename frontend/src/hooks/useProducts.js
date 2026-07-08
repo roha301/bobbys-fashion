@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { api } from '../api/client'
+import { PRODUCTS, STORES } from '../data/mockData'
 
 /**
  * Loads products from the live backend.
@@ -72,9 +73,26 @@ export function useProduct(id) {
 }
 
 export function useBrandsAndStores() {
-  // In a real app, this should be an API call to get unique brands/stores from DB
-  // For now, return empty lists if there's no mock data
-  return { brands: [], stores: [] }
+  const [brands, setBrands] = useState([])
+  const [stores, setStores] = useState([])
+
+  useEffect(() => {
+    let cancelled = false
+    Promise.all([
+      api.getBrands().catch(() => []),
+      api.getStores().catch(() => [])
+    ]).then(([b, s]) => {
+      if (cancelled) return
+      const fallbackBrands = Array.from(new Set(PRODUCTS.map((p) => p.brand))).filter(Boolean)
+      setBrands(b.length ? b : fallbackBrands)
+      setStores(s.length ? s : STORES)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  return { brands, stores }
 }
 
 export function useHomeData() {

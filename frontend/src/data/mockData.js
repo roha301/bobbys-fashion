@@ -50,3 +50,63 @@ export const compareOffers = (product) => {
     ...others.map((store, i) => ({ store, price: product.price + (i + 1) * 151, best: false })),
   ]
 }
+
+export const getLocalSuggestions = (q) => {
+  if (!q || !q.trim()) return []
+  const norm = (s) => s.toLowerCase().replace(/-/g, ' ').replace(/'/g, '').trim()
+  const term = norm(q)
+  const results = new Set()
+  
+  // Match category names
+  CATEGORIES.forEach((c) => {
+    const name = c.name.toLowerCase()
+    const nameNorm = norm(name)
+    if (nameNorm.includes(term)) {
+      results.add(name)
+      const subs = DEFAULT_SUBCATEGORIES[c.id] || []
+      subs.forEach((s) => {
+        results.add(`${name} ${s.toLowerCase()}`)
+        results.add(`${name}s ${s.toLowerCase()}`)
+      })
+    }
+  })
+  
+  // Match subcategories
+  Object.entries(DEFAULT_SUBCATEGORIES).forEach(([catId, subs]) => {
+    const catName = CATEGORIES.find((c) => c.id === catId)?.name?.toLowerCase() || catId
+    subs.forEach((sub) => {
+      const subNorm = norm(sub)
+      if (subNorm.includes(term)) {
+        results.add(sub.toLowerCase())
+        results.add(`${catName} ${sub.toLowerCase()}`)
+        results.add(`${catName}s ${sub.toLowerCase()}`)
+      }
+    })
+  })
+  
+  // Match products & brands
+  PRODUCTS.forEach((p) => {
+    const nameNorm = norm(p.name)
+    const brandNorm = norm(p.brand)
+    if (nameNorm.includes(term)) {
+      results.add(p.name.toLowerCase())
+    }
+    if (brandNorm.includes(term)) {
+      results.add(p.brand.toLowerCase())
+      results.add(`${p.brand.toLowerCase()} ${p.category}`)
+    }
+  })
+  
+  return Array.from(results)
+    .filter((item) => norm(item).includes(term) && item.length < 40)
+    .sort((a, b) => {
+      const aNorm = norm(a)
+      const bNorm = norm(b)
+      const aStarts = aNorm.startsWith(term)
+      const bStarts = bNorm.startsWith(term)
+      if (aStarts && !bStarts) return -1
+      if (!aStarts && bStarts) return 1
+      return a.length - b.length || a.localeCompare(b)
+    })
+    .slice(0, 8)
+}

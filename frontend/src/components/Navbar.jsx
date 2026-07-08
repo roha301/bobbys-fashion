@@ -6,8 +6,11 @@ import { useAdminAuth } from '../context/AdminAuthContext'
 import { useUserAuth } from '../context/UserAuthContext'
 import WishlistDrawer from './WishlistDrawer'
 import UserAuthModal from './UserAuthModal'
+import { api } from '../api/client'
+import { getLocalSuggestions } from '../data/mockData'
 
 const LINKS = [
+  { to: '/category/all', label: 'Shop All' },
   { to: '/category/women', label: 'Women' },
   { to: '/category/men', label: 'Men' },
   { to: '/deals', label: 'Deals' },
@@ -22,6 +25,11 @@ export default function Navbar() {
   const [authModalOpen, setAuthModalOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   
+  // Suggestions states
+  const [suggestions, setSuggestions] = useState([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1)
+  
   const navigate = useNavigate()
   const wishlist = useWishlist()
   const { isAuthed } = useAdminAuth()
@@ -33,10 +41,74 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  // Auto-predict debouncing search suggestions
+  useEffect(() => {
+    if (!query.trim()) {
+      setSuggestions([])
+      return
+    }
+    const delayDebounceFn = setTimeout(() => {
+      api.predict(query.trim())
+        .then((res) => {
+          setSuggestions(res)
+        })
+        .catch(() => {
+          // Fallback to local suggestions on API error/offline
+          const fallback = getLocalSuggestions(query.trim())
+          setSuggestions(fallback)
+        })
+    }, 200)
+
+    return () => clearTimeout(delayDebounceFn)
+  }, [query])
+
+  // Handle outside clicks to close autocomplete
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (!e.target.closest('.search-container')) {
+        setShowSuggestions(false)
+      }
+    }
+    document.addEventListener('click', handleOutsideClick)
+    return () => document.removeEventListener('click', handleOutsideClick)
+  }, [])
+
+  const selectSuggestion = (suggestion) => {
+    setQuery(suggestion)
+    setSuggestions([])
+    setShowSuggestions(false)
+    navigate(`/search?q=${encodeURIComponent(suggestion)}`)
+    setOpen(false)
+  }
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setActiveSuggestionIndex((prev) => 
+        prev < suggestions.length - 1 ? prev + 1 : 0
+      )
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setActiveSuggestionIndex((prev) => 
+        prev > 0 ? prev - 1 : suggestions.length - 1
+      )
+    } else if (e.key === 'Enter') {
+      if (activeSuggestionIndex >= 0 && activeSuggestionIndex < suggestions.length) {
+        e.preventDefault()
+        selectSuggestion(suggestions[activeSuggestionIndex])
+      }
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false)
+      setActiveSuggestionIndex(-1)
+    }
+  }
+
   const submitSearch = (e) => {
     e.preventDefault()
     if (query.trim()) {
       navigate(`/search?q=${encodeURIComponent(query.trim())}`)
+      setSuggestions([])
+      setShowSuggestions(false)
       setOpen(false)
     }
   }
@@ -64,16 +136,45 @@ export default function Navbar() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <form onSubmit={submitSearch} className="hidden items-center rounded-full border border-[var(--color-line)] bg-white/80 px-3 py-2 sm:flex">
-            <Search size={15} className="text-[var(--color-ink-soft)]" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search products, brands..."
-              className="ml-2 w-40 bg-transparent text-sm outline-none placeholder:text-[var(--color-ink-soft)] lg:w-56"
-              aria-label="Search products"
-            />
-          </form>
+          <div className="search-container relative hidden sm:block">
+            <form onSubmit={submitSearch} className="flex items-center rounded-full border border-[var(--color-line)] bg-white/80 px-3 py-2">
+              <Search size={15} className="text-[var(--color-ink-soft)]" />
+              <input
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value)
+                  setShowSuggestions(true)
+                  setActiveSuggestionIndex(-1)
+                }}
+                onFocus={() => setShowSuggestions(true)}
+                onKeyDown={handleKeyDown}
+                placeholder="Search products, brands..."
+                className="ml-2 w-40 bg-transparent text-sm outline-none placeholder:text-[var(--color-ink-soft)] lg:w-56"
+                aria-label="Search products"
+              />
+            </form>
+            
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 overflow-y-auto rounded-2xl border border-[var(--color-line)] bg-white/95 backdrop-blur-md p-2 shadow-xl">
+                {suggestions.map((s, index) => (
+                  <button
+                    type="button"
+                    key={index}
+                    onClick={() => selectSuggestion(s)}
+                    onMouseEnter={() => setActiveSuggestionIndex(index)}
+                    className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs transition cursor-pointer ${
+                      index === activeSuggestionIndex
+                        ? 'bg-[var(--color-paper-dim)] text-[var(--color-gold-dark)] font-medium'
+                        : 'text-[var(--color-ink)]'
+                    }`}
+                  >
+                    <Search size={12} className="text-[var(--color-ink-soft)] shrink-0" />
+                    <span className="truncate">{s}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
           <Link to="/search" className="rounded-full border border-[var(--color-line)] p-2.5 sm:hidden" aria-label="Search">
             <Search size={17} />
@@ -162,15 +263,44 @@ export default function Navbar() {
 
       {open && (
         <div className="glass border-t border-[var(--color-line)] px-5 py-4 lg:hidden">
-          <form onSubmit={submitSearch} className="mb-4 flex items-center rounded-full border border-[var(--color-line)] bg-white px-3 py-2">
-            <Search size={15} className="text-[var(--color-ink-soft)]" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search products, brands..."
-              className="ml-2 w-full bg-transparent text-sm outline-none"
-            />
-          </form>
+          <div className="search-container relative mb-4">
+            <form onSubmit={submitSearch} className="flex items-center rounded-full border border-[var(--color-line)] bg-white px-3 py-2">
+              <Search size={15} className="text-[var(--color-ink-soft)]" />
+              <input
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value)
+                  setShowSuggestions(true)
+                  setActiveSuggestionIndex(-1)
+                }}
+                onFocus={() => setShowSuggestions(true)}
+                onKeyDown={handleKeyDown}
+                placeholder="Search products, brands..."
+                className="ml-2 w-full bg-transparent text-sm outline-none"
+              />
+            </form>
+            
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-y-auto rounded-2xl border border-[var(--color-line)] bg-white p-2 shadow-xl">
+                {suggestions.map((s, index) => (
+                  <button
+                    type="button"
+                    key={index}
+                    onClick={() => selectSuggestion(s)}
+                    onMouseEnter={() => setActiveSuggestionIndex(index)}
+                    className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs transition cursor-pointer ${
+                      index === activeSuggestionIndex
+                        ? 'bg-[var(--color-paper-dim)] text-[var(--color-gold-dark)] font-medium'
+                        : 'text-[var(--color-ink)]'
+                    }`}
+                  >
+                    <Search size={12} className="text-[var(--color-ink-soft)] shrink-0" />
+                    <span className="truncate">{s}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           <div className="flex flex-col gap-3">
             {LINKS.map((l) => (
               <Link key={l.to} to={l.to} onClick={() => setOpen(false)} className="text-sm font-medium text-[var(--color-ink)]">

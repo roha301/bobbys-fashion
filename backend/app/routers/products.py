@@ -67,6 +67,33 @@ def list_products(
     return query.all()
 
 
+@router.get("/brands", response_model=List[str])
+def get_unique_brands(db: Session = Depends(get_db)):
+    results = (
+        db.query(models.Product.brand)
+        .filter(models.Product.brand != "")
+        .filter(models.Product.brand != None)
+        .distinct()
+        .all()
+    )
+    # Filter out empty or whitespace-only names and strip
+    brands_list = {r[0].strip() for r in results if r[0] and r[0].strip()}
+    return sorted(list(brands_list))
+
+
+@router.get("/stores", response_model=List[str])
+def get_unique_stores(db: Session = Depends(get_db)):
+    results = (
+        db.query(models.Product.store)
+        .filter(models.Product.store != "")
+        .filter(models.Product.store != None)
+        .distinct()
+        .all()
+    )
+    stores_list = {r[0].strip() for r in results if r[0] and r[0].strip()}
+    return sorted(list(stores_list))
+
+
 @router.get("/{product_id}", response_model=schemas.ProductOut)
 def get_product(product_id: int, db: Session = Depends(get_db)):
     product = db.query(models.Product).filter(models.Product.id == product_id).first()

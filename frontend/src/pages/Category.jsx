@@ -20,10 +20,16 @@ export default function Category() {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
   const { brands, stores } = useBrandsAndStores()
 
-  const queryFilters = useMemo(() => ({ category: id, ...filters }), [id, filters])
+  const queryFilters = useMemo(() => {
+    const base = { ...filters }
+    if (id && id !== 'all') {
+      base.category = id
+    }
+    return base
+  }, [id, filters])
   const { loading, data } = useProducts(queryFilters)
 
-  const title = id ? id.charAt(0).toUpperCase() + id.slice(1) : 'All'
+  const title = id && id !== 'all' ? `${id.charAt(0).toUpperCase() + id.slice(1)}'s Fashion` : 'All Products'
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-10 lg:px-8">
@@ -41,7 +47,7 @@ export default function Category() {
       <div className="flex flex-col gap-8 lg:flex-row">
         <div className={`${mobileFiltersOpen ? 'block' : 'hidden'} lg:block`}>
           <FilterSidebar
-            category={id}
+            category={id === 'all' ? undefined : id}
             filters={filters}
             setFilters={setFilters}
             brands={brands}

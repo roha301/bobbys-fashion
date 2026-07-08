@@ -29,6 +29,8 @@ export const api = {
     return request(`/products${qs ? `?${qs}` : ''}`)
   },
   getProduct: (id) => request(`/products/${id}`),
+  getBrands: () => request('/products/brands'),
+  getStores: () => request('/products/stores'),
   registerClick: (id) => request(`/products/${id}/click`, { method: 'POST' }),
   createProduct: (data, token) =>
     request('/products', { method: 'POST', body: JSON.stringify(data), headers: authHeader(token) }),
@@ -49,13 +51,12 @@ export const api = {
 
   // Search
   search: (q) => request(`/search?q=${encodeURIComponent(q)}`),
+  predict: (q) => request(`/search/predict?q=${encodeURIComponent(q)}`),
   getHomeData: () => request('/home'),
 
 
   // Stats (admin)
   getStats: (token) => request('/admin/stats', { headers: authHeader(token) }),
-  scrapeUrl: (url, token) =>
-    request(`/admin/scrape?url=${encodeURIComponent(url)}`, { headers: authHeader(token) }),
 
   // Auth
   login: (username, password) =>
