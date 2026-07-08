@@ -8,7 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from .database import Base, engine
-from .routers import products, categories, search, auth_router, misc
+from .routers import products, categories, search, auth_router, misc, home_decor
+from . import models_home_decor
 from sqlalchemy import text
 
 # Skip database/table creation when running on serverless platforms (Vercel) to speed up cold starts.
@@ -43,6 +44,7 @@ except OSError:
 
 app.include_router(products.router)
 app.include_router(categories.router)
+app.include_router(home_decor.router)
 app.include_router(search.router)
 app.include_router(auth_router.router)
 app.include_router(misc.router)

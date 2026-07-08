@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react'
 import {
   LogOut, Plus, Pencil, Trash2, Package, Layers, Star, Clock,
   LayoutDashboard, Search, ChevronRight, TrendingUp, Tag, Loader2,
-  BarChart2, ShieldCheck, X
+  BarChart2, ShieldCheck, X, Home
 } from 'lucide-react'
 import { api } from '../../api/client'
 import { useAdminAuth } from '../../context/AdminAuthContext'
 import ProductForm from './ProductForm'
+import HomeDecorProductForm from './HomeDecorProductForm'
 
 const MOST_VIEWED = [
   { name: "Oversized Wool Blend Coat", views: 2450 },
@@ -36,7 +37,24 @@ export default function AdminDashboard() {
   const [deleteId, setDeleteId] = useState(null)
   const [deleting, setDeleting] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState('dashboard') // dashboard | products | categories | trending | deals | analytics
+  const [activeTab, setActiveTab] = useState('dashboard') // dashboard | products | categories | trending | deals | analytics | home-decor
+
+  // Home Decor states
+  const [hdView, setHdView] = useState('list') // list | add | edit
+  const [hdProducts, setHdProducts] = useState([])
+  const [hdCategories, setHdCategories] = useState([])
+  const [hdEditing, setHdEditing] = useState(null)
+  const [hdDeleteId, setHdDeleteId] = useState(null)
+  const [hdDeleting, setHdDeleting] = useState(false)
+  const [hdSearch, setHdSearch] = useState('')
+  const [hdTab, setHdTab] = useState('products') // products | categories
+  const [hdCatModalOpen, setHdCatModalOpen] = useState(false)
+  const [hdEditingCat, setHdEditingCat] = useState(null)
+  const [hdCatFormId, setHdCatFormId] = useState('')
+  const [hdCatFormName, setHdCatFormName] = useState('')
+  const [hdCatFormEmoji, setHdCatFormEmoji] = useState('🏠')
+  const [hdCatError, setHdCatError] = useState('')
+  const [hdCatSaving, setHdCatSaving] = useState(false)
 
   // Category management states
   const [categoriesList, setCategoriesList] = useState([])
@@ -47,6 +65,16 @@ export default function AdminDashboard() {
   const [catFormEmoji, setCatFormEmoji] = useState('🛍️')
   const [catError, setCatError] = useState('')
   const [catSaving, setCatSaving] = useState(false)
+
+  const loadHd = () => {
+    Promise.all([
+      fetch('/api/home-decor/products').then(r => r.json()).catch(() => []),
+      fetch('/api/home-decor/categories').then(r => r.json()).catch(() => []),
+    ]).then(([prods, cats]) => {
+      setHdProducts(prods)
+      setHdCategories(cats)
+    })
+  }
 
   const load = () => {
     setLoading(true)
@@ -61,7 +89,7 @@ export default function AdminDashboard() {
     }).finally(() => setLoading(false))
   }
 
-  useEffect(load, [])
+  useEffect(() => { load(); loadHd() }, [])
 
   const categories = categoriesList.map((c) => c.id)
 
@@ -145,6 +173,30 @@ export default function AdminDashboard() {
     setDeleting(false)
   }
 
+  // Home Decor add/edit form
+  if (activeTab === 'home-decor' && (hdView === 'add' || hdView === 'edit')) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a]">
+        <div className="mx-auto max-w-3xl px-5 py-10 lg:px-8">
+          <div className="mb-6 flex items-center gap-3">
+            <button onClick={() => setHdView('list')} className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/60 hover:bg-white/10">
+              <ChevronRight size={16} className="rotate-180" />
+            </button>
+            <h1 className="font-display text-xl font-semibold text-white">
+              {hdView === 'add' ? 'Add Home Decor Product' : 'Edit Home Decor Product'}
+            </h1>
+          </div>
+          <HomeDecorProductForm
+            initial={hdView === 'edit' ? hdEditing : undefined}
+            onSaved={() => { setHdView('list'); loadHd() }}
+            onCancel={() => setHdView('list')}
+          />
+        </div>
+      </div>
+    )
+  }
+
+  // Fashion add/edit form
   if (view === 'add' || view === 'edit') {
     return (
       <div className="min-h-screen bg-[#0a0a0a]">
@@ -261,6 +313,10 @@ export default function AdminDashboard() {
           <NavItem icon={TrendingUp} label="Trending" active={activeTab === 'trending'} onClick={() => { setActiveTab('trending'); setSidebarOpen(false) }} />
           <NavItem icon={Tag} label="Deals" active={activeTab === 'deals'} onClick={() => { setActiveTab('deals'); setSidebarOpen(false) }} />
           <NavItem icon={BarChart2} label="Analytics" active={activeTab === 'analytics'} onClick={() => { setActiveTab('analytics'); setSidebarOpen(false) }} />
+          <div className="mt-3 border-t border-white/8 pt-3">
+            <p className="px-3 pb-1 text-[9px] font-bold uppercase tracking-widest text-white/20">Home Decor</p>
+            <NavItem icon={Home} label="Home Decor" variant="green" active={activeTab === 'home-decor'} onClick={() => { setActiveTab('home-decor'); setSidebarOpen(false) }} />
+          </div>
         </nav>
 
         {/* Logout */}
@@ -285,9 +341,18 @@ export default function AdminDashboard() {
           >
             <LayoutDashboard size={16} />
           </button>
-          <h1 className="font-display text-lg font-semibold text-white capitalize">{activeTab}</h1>
+          <h1 className="font-display text-lg font-semibold text-white capitalize">
+            {activeTab === 'home-decor' ? 'Home Decor' : activeTab}
+          </h1>
           <div className="ml-auto flex items-center gap-3">
-            {activeTab === 'categories' ? (
+            {activeTab === 'home-decor' ? (
+              <button
+                onClick={() => { setHdEditing(null); setHdView('add') }}
+                className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-lg transition hover:opacity-90 cursor-pointer"
+              >
+                <Plus size={15} /> Add Decor Product
+              </button>
+            ) : activeTab === 'categories' ? (
               <button
                 onClick={() => openCategoryModal(null)}
                 className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--color-gold)] to-[var(--color-gold-dark)] px-4 py-2 text-sm font-semibold text-[#111] shadow-lg shadow-[var(--color-gold)]/20 transition hover:opacity-90 cursor-pointer"
@@ -329,7 +394,7 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {activeTab !== 'analytics' && (
+          {activeTab !== 'analytics' && activeTab !== 'home-decor' && (
             <>
               {/* Filters row */}
               <div className="mb-5 flex flex-wrap items-center gap-3">
@@ -613,6 +678,144 @@ export default function AdminDashboard() {
               </div>
             </div>
           )}
+          {activeTab === 'home-decor' && (
+            <>
+              {/* Sub-tab switcher */}
+              <div className="mb-6 flex gap-2">
+                <button
+                  onClick={() => setHdTab('products')}
+                  className={`rounded-xl px-4 py-2 text-sm font-medium transition ${hdTab === 'products' ? 'bg-emerald-500/20 text-emerald-400' : 'text-white/40 hover:bg-white/5 hover:text-white/60'}`}
+                >
+                  🛋️ Products
+                </button>
+                <button
+                  onClick={() => setHdTab('categories')}
+                  className={`rounded-xl px-4 py-2 text-sm font-medium transition ${hdTab === 'categories' ? 'bg-emerald-500/20 text-emerald-400' : 'text-white/40 hover:bg-white/5 hover:text-white/60'}`}
+                >
+                  🗂️ Categories
+                </button>
+              </div>
+
+              {hdTab === 'products' && (
+                <>
+                  <div className="mb-5 flex flex-wrap items-center gap-3">
+                    <div className="relative flex-1 min-w-[200px] max-w-xs">
+                      <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30" />
+                      <input
+                        value={hdSearch}
+                        onChange={(e) => setHdSearch(e.target.value)}
+                        placeholder="Search decor products…"
+                        className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-9 pr-4 text-sm text-white placeholder-white/25 outline-none focus:border-emerald-500"
+                      />
+                    </div>
+                    <span className="ml-auto text-xs text-white/30">
+                      {hdProducts.filter(p => !hdSearch || p.name?.toLowerCase().includes(hdSearch.toLowerCase())).length} products
+                    </span>
+                  </div>
+
+                  <div className="overflow-hidden rounded-2xl border border-white/8 bg-white/[0.03]">
+                    <div className="overflow-x-auto">
+                      <table className="w-full min-w-[700px] text-left text-sm">
+                        <thead className="border-b border-white/8">
+                          <tr className="text-[10px] font-medium uppercase tracking-widest text-white/30">
+                            <th className="px-5 py-4">Product</th>
+                            <th className="px-5 py-4">Category</th>
+                            <th className="px-5 py-4">Price</th>
+                            <th className="px-5 py-4">Store</th>
+                            <th className="px-5 py-4">Flags</th>
+                            <th className="px-5 py-4 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {hdProducts
+                            .filter(p => !hdSearch || p.name?.toLowerCase().includes(hdSearch.toLowerCase()))
+                            .length === 0 ? (
+                            <tr>
+                              <td colSpan={6} className="px-5 py-14 text-center text-sm text-white/30">
+                                {hdSearch ? 'No products match your search.' : 'No Home Decor products yet. Click "Add Decor Product" to get started!'}
+                              </td>
+                            </tr>
+                          ) : (
+                            hdProducts
+                              .filter(p => !hdSearch || p.name?.toLowerCase().includes(hdSearch.toLowerCase()))
+                              .map((p) => (
+                                <tr key={p.id} className="group border-b border-white/5 transition hover:bg-white/[0.03] last:border-0">
+                                  <td className="px-5 py-3.5">
+                                    <div className="flex items-center gap-3">
+                                      <div className="h-11 w-9 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-white/5">
+                                        {(p.images?.[0] || p.image) && (
+                                          <img src={p.images?.[0] || p.image} alt="" className="h-full w-full object-cover" onError={(e) => { e.target.style.display = 'none' }} />
+                                        )}
+                                      </div>
+                                      <div className="min-w-0">
+                                        <p className="truncate font-medium text-white">{p.name}</p>
+                                        <p className="truncate text-xs text-white/35">{p.brand}</p>
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td className="px-5 py-3.5 capitalize text-white/50">{p.category?.replace(/_/g, ' ')}</td>
+                                  <td className="px-5 py-3.5 font-medium text-white">₹{p.price?.toLocaleString('en-IN')}</td>
+                                  <td className="px-5 py-3.5 text-white/50">{p.store}</td>
+                                  <td className="px-5 py-3.5">
+                                    <div className="flex flex-wrap gap-1.5">
+                                      {p.featured && <Flag color="gold">Featured</Flag>}
+                                      {p.trending && <Flag color="purple">Trending</Flag>}
+                                      {p.deal && <Flag color="green">Deal</Flag>}
+                                    </div>
+                                  </td>
+                                  <td className="px-5 py-3.5">
+                                    <div className="flex justify-end gap-2">
+                                      <button
+                                        onClick={() => { setHdEditing(p); setHdView('edit') }}
+                                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white/50 transition hover:border-emerald-400/50 hover:text-emerald-400"
+                                        aria-label="Edit"
+                                      >
+                                        <Pencil size={13} />
+                                      </button>
+                                      <button
+                                        onClick={() => setHdDeleteId(p.id)}
+                                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white/50 transition hover:border-red-400/50 hover:text-red-400"
+                                        aria-label="Delete"
+                                      >
+                                        <Trash2 size={13} />
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {hdTab === 'categories' && (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+                  {hdCategories.map((cat) => {
+                    const count = hdProducts.filter((p) => p.category === cat.id).length
+                    return (
+                      <div key={cat.id} className="flex flex-col justify-between rounded-2xl border border-emerald-500/10 bg-emerald-500/[0.03] p-5 transition hover:bg-emerald-500/[0.06]">
+                        <div>
+                          <div className="flex items-center gap-3">
+                            <img src={`/categories/${cat.id}.png`} alt={cat.name} className="h-12 w-12 rounded-xl object-cover border border-white/10" onError={(e) => { e.target.style.display='none' }} />
+                            <div>
+                              <h3 className="font-display text-sm font-semibold text-white">{cat.emoji} {cat.name}</h3>
+                              <p className="text-[10px] font-mono text-white/40">slug: {cat.id}</p>
+                            </div>
+                          </div>
+                          <p className="mt-4 text-xs text-white/50">
+                            {count} {count === 1 ? 'product' : 'products'} listed
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </>
+          )}
         </main>
       </div>
 
@@ -738,17 +941,61 @@ export default function AdminDashboard() {
           </form>
         </div>
       )}
+      {/* Home Decor Delete confirmation modal */}
+      {hdDeleteId !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-5 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-[#161616] p-7 shadow-2xl">
+            <div className="mb-4 flex items-start justify-between">
+              <h2 className="font-display text-base font-semibold text-white">Delete Decor Product?</h2>
+              <button onClick={() => setHdDeleteId(null)} className="text-white/30 hover:text-white">
+                <X size={18} />
+              </button>
+            </div>
+            <p className="mb-6 text-sm text-white/50">This action cannot be undone. The home decor product will be permanently removed.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={async () => {
+                  setHdDeleting(true)
+                  try {
+                    await fetch(`/api/home-decor/products/${hdDeleteId}`, {
+                      method: 'DELETE',
+                      headers: { Authorization: `Bearer ${auth.token}` }
+                    })
+                    setHdProducts((p) => p.filter((x) => x.id !== hdDeleteId))
+                  } catch { /**/ }
+                  setHdDeleteId(null)
+                  setHdDeleting(false)
+                }}
+                disabled={hdDeleting}
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-red-500/90 py-2.5 text-sm font-semibold text-white transition hover:bg-red-500"
+              >
+                {hdDeleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                Delete
+              </button>
+              <button
+                onClick={() => setHdDeleteId(null)}
+                className="flex-1 rounded-xl border border-white/10 py-2.5 text-sm text-white/60 transition hover:bg-white/5"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
-function NavItem({ icon: Icon, label, active, onClick }) {
+function NavItem({ icon: Icon, label, active, onClick, variant = 'gold' }) {
+  const activeClass = variant === 'green'
+    ? 'bg-emerald-500/15 text-emerald-400'
+    : 'bg-[var(--color-gold)]/15 text-[var(--color-gold)]'
   return (
     <button
       onClick={onClick}
       className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
         active
-          ? 'bg-[var(--color-gold)]/15 text-[var(--color-gold)]'
+          ? activeClass
           : 'text-white/40 hover:bg-white/5 hover:text-white/70'
       }`}
     >

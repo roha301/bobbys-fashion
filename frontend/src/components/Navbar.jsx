@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Search, Heart, Menu, X, ShieldCheck, User, LogOut } from 'lucide-react'
 import { useWishlist } from '../context/WishlistContext'
 import { useAdminAuth } from '../context/AdminAuthContext'
@@ -17,7 +17,19 @@ const LINKS = [
   { to: '/about', label: 'About' },
 ]
 
+const DECOR_LINKS = [
+  { to: '/home-decor/category/all', label: 'Shop All' },
+  { to: '/home-decor/category/living_room', label: 'Living Room' },
+  { to: '/home-decor/category/bedroom', label: 'Bedroom' },
+  { to: '/deals', label: 'Deals' },
+  { to: '/about', label: 'About' },
+]
+
 export default function Navbar() {
+  const location = useLocation()
+  const isHomeDecor = location.pathname.startsWith('/home-decor')
+  const activeLinks = isHomeDecor ? DECOR_LINKS : LINKS
+
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -120,15 +132,33 @@ export default function Navbar() {
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 lg:px-8">
-        <Link to="/" className="flex items-center gap-2.5">
-          <img src="/logo.png" alt="Bobby's Fashion" className="h-8 w-auto object-contain" />
-          <span className="font-display text-base font-semibold tracking-tight text-[var(--color-ink)]">
-            Bobby's <span className="text-[var(--color-gold-dark)]">Fashion</span>
-          </span>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link to={isHomeDecor ? "/home-decor" : "/"} className="flex items-center gap-2.5">
+            <img src="/logo.png" alt="Bobby's" className="h-8 w-auto object-contain" />
+            <span className="font-display text-base font-semibold tracking-tight text-[var(--color-ink)] hidden xs:inline">
+              Bobby's <span className="text-[var(--color-gold-dark)]">{isHomeDecor ? 'Home' : 'Fashion'}</span>
+            </span>
+          </Link>
+
+          {/* Department Switcher Pill */}
+          <div className="flex items-center rounded-full bg-[var(--color-paper-dim)] p-1 text-[10px] sm:text-xs border border-[var(--color-line)] ml-1 sm:ml-3 shrink-0">
+            <Link
+              to="/"
+              className={`rounded-full px-2.5 py-1 font-medium transition-colors ${!isHomeDecor ? 'bg-white text-[var(--color-ink)] shadow-sm' : 'text-[var(--color-ink-soft)] hover:text-[var(--color-ink)]'}`}
+            >
+              Fashion
+            </Link>
+            <Link
+              to="/home-decor"
+              className={`rounded-full px-2.5 py-1 font-medium transition-colors ${isHomeDecor ? 'bg-white text-[var(--color-ink)] shadow-sm' : 'text-[var(--color-ink-soft)] hover:text-[var(--color-ink)]'}`}
+            >
+              Home Decor
+            </Link>
+          </div>
+        </div>
 
         <nav className="hidden items-center gap-8 lg:flex">
-          {LINKS.map((l) => (
+          {activeLinks.map((l) => (
             <Link key={l.to} to={l.to} className="text-sm font-medium text-[var(--color-ink-soft)] transition-colors hover:text-[var(--color-ink)]">
               {l.label}
             </Link>
@@ -302,7 +332,7 @@ export default function Navbar() {
             )}
           </div>
           <div className="flex flex-col gap-3">
-            {LINKS.map((l) => (
+            {activeLinks.map((l) => (
               <Link key={l.to} to={l.to} onClick={() => setOpen(false)} className="text-sm font-medium text-[var(--color-ink)]">
                 {l.label}
               </Link>

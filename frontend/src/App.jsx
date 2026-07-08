@@ -40,6 +40,10 @@ function AdminRoutes() {
   )
 }
 
+import HomeDecor from './pages/HomeDecor'
+import HomeDecorCategory from './pages/HomeDecorCategory'
+import HomeDecorProductDetails from './pages/HomeDecorProductDetails'
+
 /** Public site routes — wrapped in Navbar + Footer */
 function SiteRoutes() {
   return (
@@ -50,6 +54,9 @@ function SiteRoutes() {
           <Route path="/" element={<Home />} />
           <Route path="/category/:id" element={<Category />} />
           <Route path="/product/:id" element={<ProductDetails />} />
+          <Route path="/home-decor" element={<HomeDecor />} />
+          <Route path="/home-decor/category/:id" element={<HomeDecorCategory />} />
+          <Route path="/home-decor/product/:id" element={<HomeDecorProductDetails />} />
           <Route path="/search" element={<Search />} />
           <Route path="/deals" element={<Deals />} />
           <Route path="/about" element={<About />} />
