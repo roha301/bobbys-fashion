@@ -17,27 +17,49 @@ const SIZE_OPTIONS = [
   '6', '7', '8', '9', '10', '11', 'One Size'
 ]
 
-const COLOR_OPTIONS = [
-  'Black', 'White', 'Grey', 'Navy', 'Beige', 'Brown', 'Red', 'Blue', 'Green', 'Pink'
-]
-
 export default function ProductForm({ initial, onSaved, onCancel }) {
   const [form, setForm] = useState(initial ? { ...EMPTY, ...initial } : EMPTY)
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [colorInput, setColorInput] = useState('')
-  const [customColor, setCustomColor] = useState('')
-  const [showCustomColor, setShowCustomColor] = useState(false)
   const [sizeInput, setSizeInput] = useState('')
   const [customSize, setCustomSize] = useState('')
   const [showCustomSize, setShowCustomSize] = useState(false)
-  const [dbStores, setDbStores] = useState([])
-  const [showCustomStore, setShowCustomStore] = useState(false)
+  const [scrapeUrl, setScrapeUrl] = useState('')
+  const [scraping, setScraping] = useState(false)
+  const [scrapeError, setScrapeError] = useState('')
   const auth = useAdminAuth()
   const fileRef = useRef()
 
   const set = (patch) => setForm((f) => ({ ...f, ...patch }))
+
+  const handleScrape = async () => {
+    if (!scrapeUrl.trim()) return
+    setScraping(true)
+    setScrapeError('')
+    try {
+      const data = await api.scrapeUrl(scrapeUrl.trim(), auth.token)
+      if (data.error) {
+        setScrapeError(data.error)
+      } else {
+        set({
+          name: data.name || form.name,
+          brand: data.brand || form.brand,
+          description: data.description || form.description,
+          price: data.price ? String(data.price) : form.price,
+          store: data.store || form.store,
+          affiliateLink: data.affiliateLink || form.affiliateLink,
+          images: data.image ? [data.image] : form.images
+        })
+        setScrapeUrl('')
+      }
+    } catch (err) {
+      setScrapeError(err.message || 'Failed to scrape. Please fill manually.')
+    } finally {
+      setScraping(false)
+    }
+  }
 
   const [categories, setCategories] = useState([])
   const [dbSubcategories, setDbSubcategories] = useState([])
@@ -64,23 +86,6 @@ export default function ProductForm({ initial, onSaved, onCancel }) {
       setDbSubcategories([])
     }
   }, [form.category])
-
-  useEffect(() => {
-    api.getStores()
-      .then((data) => {
-        const combined = Array.from(new Set([...STORES, ...data])).filter(Boolean)
-        setDbStores(combined)
-        if (initial?.store && !combined.includes(initial.store)) {
-          setShowCustomStore(true)
-        }
-      })
-      .catch(() => {
-        setDbStores(STORES)
-        if (initial?.store && !STORES.includes(initial.store)) {
-          setShowCustomStore(true)
-        }
-      })
-  }, [initial])
 
   // ── Image upload ──
   const handleUpload = async (e) => {
@@ -128,25 +133,13 @@ export default function ProductForm({ initial, onSaved, onCancel }) {
     const autoDiscount = mrpNum > 0 ? Math.round(100 - (priceNum / mrpNum) * 100) : 0
 
     let finalColors = form.colors || []
-    if (showCustomColor) {
-      if (customColor.trim() && !finalColors.includes(customColor.trim())) {
-        finalColors = [...finalColors, customColor.trim()]
-      }
-    } else {
-      if (colorInput.trim() && !finalColors.includes(colorInput.trim())) {
-        finalColors = [...finalColors, colorInput.trim()]
-      }
+    if (colorInput.trim() && !finalColors.includes(colorInput.trim())) {
+      finalColors = [...finalColors, colorInput.trim()]
     }
 
     let finalSizes = form.sizes || []
-    if (showCustomSize) {
-      if (customSize.trim() && !finalSizes.includes(customSize.trim())) {
-        finalSizes = [...finalSizes, customSize.trim()]
-      }
-    } else {
-      if (sizeInput.trim() && !finalSizes.includes(sizeInput.trim())) {
-        finalSizes = [...finalSizes, sizeInput.trim()]
-      }
+    if (sizeInput.trim() && !finalSizes.includes(sizeInput.trim())) {
+      finalSizes = [...finalSizes, sizeInput.trim()]
     }
 
     const payload = {
@@ -185,6 +178,40 @@ export default function ProductForm({ initial, onSaved, onCancel }) {
 
   return (
     <form onSubmit={submit} className="space-y-6 rounded-2xl border border-white/8 bg-white/[0.03] p-7 backdrop-blur-sm">
+      {/* Feature 1: Scraper Auto-Fill */}
+      {!initial?.id && (
+        <div className="rounded-xl border border-dashed border-[var(--color-gold)]/30 bg-[var(--color-gold)]/5 p-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+            <div className="flex-1">
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--color-gold)]">
+                Auto-Fill from Store URL (Amazon, Myntra, AJIO, Flipkart, Nykaa)
+              </label>
+              <input
+                type="url"
+                value={scrapeUrl}
+                onChange={(e) => setScrapeUrl(e.target.value)}
+                placeholder="Paste store product link here (e.g., https://www.amazon.in/dp/...) and click scrape"
+                className="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs text-white outline-none focus:border-[var(--color-gold)]"
+              />
+            </div>
+            <button
+              type="button"
+              disabled={scraping || !scrapeUrl.trim()}
+              onClick={handleScrape}
+              className="inline-flex h-[42px] items-center justify-center gap-1.5 rounded-xl bg-[var(--color-gold)] px-5 text-xs font-semibold text-[#111] transition hover:bg-[var(--color-gold-dark)] disabled:opacity-50 cursor-pointer"
+            >
+              {scraping ? (
+                <>
+                  <Loader2 size={13} className="animate-spin" /> Scraping...
+                </>
+              ) : (
+                'Scrape & Pre-Fill'
+              )}
+            </button>
+          </div>
+          {scrapeError && <p className="mt-2 text-[10px] text-red-400 font-medium">{scrapeError}</p>}
+        </div>
+      )}
 
       {/* Section: Basic Info */}
       <Section title="Basic Information">
@@ -238,38 +265,10 @@ export default function ProductForm({ initial, onSaved, onCancel }) {
               ))}
             </datalist>
           </Field>
-          <Field label="Store *">
-            {showCustomStore ? (
-              <Input
-                required
-                value={form.store}
-                onChange={(e) => set({ store: e.target.value })}
-                placeholder="e.g. Zara Home"
-              />
-            ) : (
-              <select
-                required
-                value={form.store}
-                onChange={(e) => set({ store: e.target.value })}
-                className={inputCls}
-              >
-                <option value="">Select store...</option>
-                {dbStores.map((s) => (
-                  <option key={s} value={s} className="bg-[#1a1a1a]">
-                    {s}
-                  </option>
-                ))}
-              </select>
-            )}
-            <div className="mt-1.5 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setShowCustomStore(!showCustomStore)}
-                className="text-[10px] font-semibold text-[var(--color-gold)] hover:underline cursor-pointer"
-              >
-                {showCustomStore ? '← Choose standard store' : '✎ Enter custom store'}
-              </button>
-            </div>
+          <Field label="Store">
+            <select value={form.store} onChange={(e) => set({ store: e.target.value })} className={inputCls}>
+              {STORES.map((s) => <option key={s} value={s} className="bg-[#1a1a1a]">{s}</option>)}
+            </select>
           </Field>
           <Field label="Rating (0–5)">
             <Input type="number" step="0.1" min="0" max="5" value={form.rating} onChange={(e) => set({ rating: e.target.value })} />
@@ -348,57 +347,12 @@ export default function ProductForm({ initial, onSaved, onCancel }) {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {/* Colors */}
           <Field label="Colors">
-            <div className="flex gap-2">
-              {showCustomColor ? (
-                <input
-                  value={customColor}
-                  onChange={(e) => setCustomColor(e.target.value)}
-                  placeholder="e.g. Lavender, Olive..."
-                  className={inputCls + ' flex-1'}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      addChip('colors', customColor, setCustomColor)
-                    }
-                  }}
-                />
-              ) : (
-                <select
-                  value={colorInput}
-                  onChange={(e) => setColorInput(e.target.value)}
-                  className={inputCls + ' flex-1 bg-[#1a1a1a]'}
-                >
-                  <option value="" className="text-white/20">Select color...</option>
-                  {COLOR_OPTIONS.map((opt) => (
-                    <option key={opt} value={opt} className="bg-[#1a1a1a]">
-                      {opt}
-                    </option>
-                  ))}
-                </select>
-              )}
-              <button
-                type="button"
-                onClick={() => {
-                  if (showCustomColor) {
-                    addChip('colors', customColor, setCustomColor)
-                  } else {
-                    addChip('colors', colorInput, setColorInput)
-                  }
-                }}
-                className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/40 transition hover:border-[var(--color-gold)]/50 hover:text-[var(--color-gold)]"
-              >
-                <Plus size={15} />
-              </button>
-            </div>
-            <div className="mt-1.5 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setShowCustomColor(!showCustomColor)}
-                className="text-[10px] font-semibold text-[var(--color-gold)] hover:underline cursor-pointer"
-              >
-                {showCustomColor ? '← Choose standard color' : '✎ Enter custom color'}
-              </button>
-            </div>
+            <ChipInput
+              value={colorInput}
+              onChange={setColorInput}
+              onAdd={() => addChip('colors', colorInput, setColorInput)}
+              placeholder="e.g. Red, Navy…"
+            />
             <ChipList chips={form.colors} onRemove={(v) => removeChip('colors', v)} color="blue" />
           </Field>
 
@@ -521,6 +475,27 @@ function Input({ className = '', ...props }) {
       className={`${inputCls} ${className}`}
       {...props}
     />
+  )
+}
+
+function ChipInput({ value, onChange, onAdd, placeholder }) {
+  return (
+    <div className="flex gap-2">
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); onAdd() } }}
+        placeholder={placeholder}
+        className={inputCls + ' flex-1'}
+      />
+      <button
+        type="button"
+        onClick={onAdd}
+        className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/40 transition hover:border-[var(--color-gold)]/50 hover:text-[var(--color-gold)]"
+      >
+        <Plus size={15} />
+      </button>
+    </div>
   )
 }
 
