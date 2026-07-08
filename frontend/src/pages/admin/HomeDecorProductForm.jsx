@@ -159,9 +159,31 @@ export default function HomeDecorProductForm({ initial, onSaved, onCancel }) {
             <input className={inputCls} value={form.subcategory} onChange={(e) => set({ subcategory: e.target.value })} placeholder="e.g. Pendant Lamp" />
           </FormField>
           <FormField label="Store">
-            <select className={inputCls} value={form.store} onChange={(e) => set({ store: e.target.value })}>
+            <select
+              value={STORES.includes(form.store) ? form.store : (form.store ? '__custom__' : STORES[0])}
+              onChange={(e) => {
+                const val = e.target.value
+                if (val === '__custom__') {
+                  set({ store: '' })
+                } else {
+                  set({ store: val })
+                }
+              }}
+              className={inputCls}
+            >
               {STORES.map((s) => <option key={s} value={s} className="bg-[#1a1a1a]">{s}</option>)}
+              <option value="__custom__" className="bg-[#1a1a1a]">Other / Custom Store...</option>
             </select>
+            {!STORES.includes(form.store) && (
+              <input
+                type="text"
+                required
+                placeholder="Enter custom store name..."
+                value={form.store}
+                onChange={(e) => set({ store: e.target.value })}
+                className={inputCls + ' mt-2'}
+              />
+            )}
           </FormField>
           <FormField label="Rating (0–5)">
             <input type="number" step="0.1" min="0" max="5" className={inputCls} value={form.rating} onChange={(e) => set({ rating: e.target.value })} />
